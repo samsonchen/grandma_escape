@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>阿嬤逃脫 2D - Grandma Escape</title>
+    <style>
+        :root {
+            --primary: #FF2D55;
+            /* Vibrant Red/Pink */
+            --secondary: #5856D6;
+            /* Deep Purple */
+            --accent: #FFCC00;
+            /* Gold */
+            --bg-dark: #1C1C1E;
+            /* iOS Dark System */
+            --surface: rgba(28, 28, 30, 0.85);
+            --text: #ffffff;
+            --success: #32D74B;
+        }
+
+        * {
+            box-sizing: border-box;
+            touch-action: none;
+            user-select: none;
+            -webkit-user-select: none;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #000;
+            color: var(--text);
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #game-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            max-width: 500px;
+            /* Portrait optimized */
+            aspect-ratio: 9/19.5;
+            background: #111;
+            overflow: hidden;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+        }
+
+        @media (min-width: 600px) {
+            #game-container {
+                height: 90vh;
+                border-radius: 20px;
+                border: 4px solid #333;
+            }
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* UI Overlays */
+        .screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 30px;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(20px);
+            z-index: 20;
+            transition: opacity 0.3s ease;
+            text-align: center;
+        }
+
+        .screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            margin: 0 0 15px;
+            background: linear-gradient(135deg, #FFF, var(--primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+            letter-spacing: -1px;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            color: var(--primary);
+            margin: 0 0 20px;
+        }
+
+        p {
+            font-size: 1.1rem;
+            color: #aeaeb2;
+            line-height: 1.6;
+            margin-bottom: 40px;
+            max-width: 80%;
+        }
+
+        .btn {
+            background: var(--primary);
+            border: none;
+            padding: 18px 50px;
+            font-size: 1.5rem;
+            color: white;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(255, 45, 85, 0.4);
+            transition: transform 0.1s;
+            font-weight: 700;
+            width: 80%;
+            max-width: 300px;
+        }
+
+        .btn:active {
+            transform: scale(0.96);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            margin-top: 15px;
+            padding: 15px 40px;
+            font-size: 1.1rem;
+        }
+
+        /* HUD */
+        #hud {
+            position: absolute;
+            top: env(safe-area-inset-top, 20px);
+            left: 0;
+            width: 100%;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .score-pill {
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            font-weight: 700;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        #combo-display {
+            position: absolute;
+            top: 20%;
+            left: 50%;
+            transform: translateX(-50%) scale(0);
+            font-size: 3rem;
+            font-weight: 900;
+            color: var(--accent);
+            text-shadow: 0 4px 20px rgba(255, 204, 0, 0.5);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 15;
+            pointer-events: none;
+        }
+
+        #powerup-toast {
+            position: absolute;
+            bottom: 25%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(90deg, var(--secondary), var(--primary));
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.3s;
+            white-space: nowrap;
+        }
+
+        .hp-container {
+            position: absolute;
+            top: 70px;
+            left: 20px;
+            right: 20px;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .hp-bar {
+            height: 100%;
+            width: 100%;
+            background: var(--success);
+            transition: width 0.2s, background 0.3s;
+        }
+
+        .hp-low {
+            background: var(--primary);
+        }
+
+        .disclaimer {
+            margin-top: auto;
+            font-size: 0.75rem;
+            opacity: 0.5;
+            padding-bottom: 20px;
+        }
+
+        /* Controls Hint */
+        .controls {
+            position: absolute;
+            bottom: 30px;
+            width: 100%;
+            text-align: center;
+            font-size: 0.9rem;
+            opacity: 0.4;
+            pointer-events: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="game-container">
+        <canvas id="gameCanvas"></canvas>
+
+        <!-- Start Screen -->
+        <div id="start-screen" class="screen">
+            <h1>阿嬤逃脫 2D</h1>
+            <p>逃離養老院！<br><br>左右切換跑道<br>向上跳躍 (躲低障礙)<br>向下蹲低 (躲高障礙)</p>
+            <button class="btn" id="start-btn">快跑！</button>
+            <div class="disclaimer">請不要鼓勵家中長輩嘗試。</div>
+        </div>
+
+        <!-- Game Over Screen -->
+        <div id="game-over-screen" class="screen hidden">
+            <h1 style="color:var(--primary)">被抓到了</h1>
+            <h2 id="fail-reason">護理師追上你了</h2>
+
+            <div style="font-size: 4rem; font-weight: 800; margin: 20px 0;" id="final-score">0</div>
+            <p>
+                距離: <span id="final-dist">0</span>m<br>
+                特技: <span id="final-tricks">0</span> 次
+            </p>
+
+            <button class="btn" id="restart-btn">再次逃跑</button>
+            <button class="btn btn-secondary" id="home-btn">返回首頁</button>
+            <div class="disclaimer">請不要鼓勵家中長輩嘗試。</div>
+        </div>
+
+        <!-- HUD -->
+        <div id="hud" style="display: none;">
+            <div class="score-pill">🏆 <span id="score-val">0</span></div>
+            <div class="score-pill">💨 <span id="speed-val">0</span>km/h</div>
+        </div>
+
+        <div id="hp-box" class="hp-container" style="display: none;">
+            <div id="hp-bar" class="hp-bar"></div>
+        </div>
+
+        <div id="combo-display">COMBO x2</div>
+        <div id="powerup-toast">無敵模式!</div>
+
+        <div class="controls" id="desktop-controls">
+            鍵盤: WASD 或 方向鍵
+        </div>
+    </div>
+
+    <script>
+        /**
+         * Grandma Escape 2D - Top Down Version
+         * Focuses on clean 2D graphics and smooth 60fps gameplay.
+         */
+
+        // --- Engine Config ---
+        const CONFIG = {
+            lanes: 3,
+            baseSpeed: 400, // pixels per sec
+            maxSpeed: 1000,
+            laneWidthRatio: 0.33,
+            playerYRatio: 0.8, // Player fixed at 80% down the screen
+            spawnInterval: 1.2, // seconds
+            colors: {
+                lane1: '#2C2C2E',
+                lane2: '#3A3A3C', // checkers effect
+                wall: '#111',
+                grass: '#1b4d24',
+                road: '#2c3e50',
+            }
+        };
+
+        // --- Game State ---
+        const state = {
+            running: false,
+            paused: false,
+            dt: 0,
+            lastTime: 0,
+
+            // Player
+            lane: 1, // 0, 1, 2
+            targetLaneX: 0,
+            x: 0,
+            y: 0, // fixed, but used for drawing
+            width: 0, // calc based on screen
+            height: 0,
+
+            // Actions
+            isJumping: false,
+            jumpY: 0, // visual offset Y (up is negative)
+            jumpVelocity: 0,
+
+            isSliding: false,
+            slideTimer: 0,
+
+            // Stats
+            score: 0,
+            distance: 0,
+            hp: 100,
+            speed: CONFIG.baseSpeed,
+            combo: 0,
+            tricks: 0,
+            stage: 0, // 0: Hallway, 1: Garden, 2: Street
+
+            // Powerups
+            invincible: 0,
+            magnet: 0,
+            turbo: 0,
+            shield: false,
+
+            // Entities
+            objects: [], // { type, lane, y, active, ... }
+            particles: [],
+
+            // Chaser
+            chaserY: 2000,
+            chaserTimer: 0,
+        };
+
+        // --- Assets / Shapes ---
+        // We will draw using Canvas Primitives
+        const ASSETS = {
+            grandma: { color: '#FF2D55', head: '#ddd' },
+            chaser: { color: '#fff', cross: '#f00' },
+            obstacles: {
+                low: { color: '#3498db', shape: 'rect', label: '💧' }, // Water
+                high: { color: '#f1c40f', shape: 'line', label: '🚧' }, // Bar
+                block: { color: '#e74c3c', shape: 'full', label: '🛑' }, // Full block
+                hole: { color: '#000', shape: 'circle', label: '🕳️' }
+            }
+        };
+
+        // --- Input System ---
+        const input = {
+            startX: 0,
+            startY: 0
+        };
+
+        function initInput() {
+            const el = document.getElementById('game-container');
+
+            // Touch
+            el.addEventListener('touchstart', e => {
+                input.startX = e.touches[0].clientX;
+                input.startY = e.touches[0].clientY;
+            });
+            el.addEventListener('touchend', e => {
+                const dx = e.changedTouches[0].clientX - input.startX;
+                const dy = e.changedTouches[0].clientY - input.startY;
+
+                if (Math.abs(dx) > Math.abs(dy)) {
+                    if (Math.abs(dx) > 30) move(dx > 0 ? 1 : -1);
+                } else {
+                    if (Math.abs(dy) > 30) {
+                        if (dy < 0) jump();
+                        else slide();
+                    }
+                }
+            });
+
+            // Keyboard
+            window.addEventListener('keydown', e => {
+                if (!state.running) return;
+                switch (e.key) {
+                    case 'ArrowLeft': case 'a': move(-1); break;
+                    case 'ArrowRight': case 'd': move(1); break;
+                    case 'ArrowUp': case 'w': jump(); break;
+                    case 'ArrowDown': case 's': slide(); break;
+                }
+            });
+        }
+
+        // --- Audio System ---
+        const audio = {
+            play(type) {
+                // Simple synth
+                if (!window.AudioContext) return;
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const g = ctx.createGain();
+                osc.connect(g);
+                g.connect(ctx.destination);
+
+                const now = ctx.currentTime;
+                if (type === 'coin') {
+                    osc.frequency.setValueAtTime(1200, now);
+                    osc.frequency.exponentialRampToValueAtTime(1800, now + 0.1);
+                    g.gain.setValueAtTime(0.2, now);
+                    g.gain.linearRampToValueAtTime(0, now + 0.1);
+                    osc.start(now); osc.stop(now + 0.1);
+                } else if (type === 'jump') {
+                    osc.type = 'square';
+                    osc.frequency.setValueAtTime(300, now);
+                    osc.frequency.linearRampToValueAtTime(600, now + 0.15);
+                    g.gain.setValueAtTime(0.1, now);
+                    g.gain.linearRampToValueAtTime(0, now + 0.15);
+                    osc.start(now); osc.stop(now + 0.15);
+                } else if (type === 'hit') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(100, now);
+                    osc.frequency.exponentialRampToValueAtTime(20, now + 0.3);
+                    g.gain.setValueAtTime(0.3, now);
+                    g.gain.linearRampToValueAtTime(0, now + 0.3);
+                    osc.start(now); osc.stop(now + 0.3);
+                }
+            }
+        };
+
+        // --- Game Logic ---
+
+        function startGame() {
+            state.running = true;
+            state.score = 0;
+            state.distance = 0;
+            state.hp = 100;
+            state.lane = 1;
+            state.objects = [];
+            state.particles = [];
+            state.speed = CONFIG.baseSpeed;
+            state.invincible = 0;
+            state.turbo = 0;
+            state.combo = 0;
+            state.combo = 0;
+            state.chaserTimer = 5; // Start with chaser
+            state.chaserY = window.innerHeight + 200; // Start off screen
+            state.lastTime = performance.now();
+
+            // UI
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('game-over-screen').classList.add('hidden');
+            document.getElementById('hud').style.display = 'flex';
+            document.getElementById('hp-box').style.display = 'block';
+            updateHP(100);
+
+            requestAnimationFrame(loop);
+        }
+
+        function move(dir) {
+            if ((dir === -1 && state.lane > 0) || (dir === 1 && state.lane < 2)) {
+                state.lane += dir;
+            }
+        }
+
+        function jump() {
+            if (!state.isJumping && !state.isSliding) {
+                state.isJumping = true;
+                state.jumpVelocity = -800; // Up is negative in screen space? No, JumpY is visual offset
+                // Actually for Top-Down, Y is screen Y.
+                // We simulate jump by SCALE. 
+                // Let's use jumpY as a "Z height" variable.
+                state.jumpHeight = 0;
+                state.jumpVel = 15; // Initial upward launch
+                audio.play('jump');
+            }
+        }
+
+        function slide() {
+            if (!state.isSliding && !state.isJumping) {
+                state.isSliding = true;
+                state.slideTimer = 0.8;
+            }
+        }
+
+        function spawnObject() {
+            const lane = Math.floor(Math.random() * 3);
+            const typeR = Math.random();
+
+            let obj = {
+                id: Math.random(),
+                lane: lane,
+                y: -200, // Spawn above screen
+                width: state.laneWidth * 0.6,
+                height: state.laneWidth * 0.6,
+                type: 'coin',
+                active: true,
+                category: 'item' // item, hazard_low, hazard_high, hazard_block
+            };
+
+            // Difficulty scaling
+            const hazardChance = 0.3 + (state.distance / 10000); // Increases
+
+            if (Math.random() < hazardChance) {
+                // Hazard
+                const hType = Math.random();
+                if (hType < 0.33) {
+                    obj.category = 'hazard_low'; // Jump over
+                    obj.color = '#3498db'; // Water/Roomba
+                    obj.label = ['🧹', '💧', '🚕'][state.stage];
+                } else if (hType < 0.66) {
+                    obj.category = 'hazard_high'; // Slide under
+                    obj.color = '#f1c40f'; // Clothesline/Wire
+                    obj.label = ['👙', '⚡', '🚧'][state.stage];
+                    obj.height = 20; // Thin line
+                } else {
+                    obj.category = 'hazard_block'; // Dodge
+                    obj.color = '#e74c3c';
+                    obj.label = ['🎍', '🦽', '🚧'][state.stage]; // Plant, Wheelchair, Cone
+                }
+            } else {
+                // Item
+                if (Math.random() < 0.1) {
+                    obj.type = 'powerup';
+                    const buff = ['star', 'health', 'shield'][Math.floor(Math.random() * 3)];
+                    obj.label = buff === 'star' ? '⭐' : (buff === 'health' ? '💊' : '🛡️');
+                    obj.buff = buff;
+                    obj.color = '#9b59b6';
+                } else {
+                    obj.type = 'coin';
+                    obj.label = '👵🏻'; // Sticker
+                    obj.color = '#f39c12';
+                    obj.width = 40; obj.height = 40;
+                }
+            }
+
+            state.objects.push(obj);
+        }
+
+        function update(dt) {
+            // 1. Progression
+            state.speed = Math.min(CONFIG.maxSpeed, state.speed + dt * 10);
+            const distDelta = (state.speed * dt) / 20; // Meters
+            state.distance += distDelta;
+
+            // Stage logic
+            state.stage = Math.floor(state.distance / 200) % 3;
+
+            // 2. Player Physics (Visual Z)
+            if (state.isJumping) {
+                state.jumpHeight += state.jumpVel * dt * 20;
+                state.jumpVel -= 40 * dt; // Gravity
+
+                if (state.jumpHeight <= 0) {
+                    state.jumpHeight = 0;
+                    state.isJumping = false;
+                }
+            }
+
+            if (state.isSliding) {
+                state.slideTimer -= dt;
+                if (state.slideTimer <= 0) state.isSliding = false;
+            }
+
+            // 2.5 Chaser Logic (Update)
+            if (state.chaserTimer > 0) {
+                state.chaserTimer -= dt;
+                // Target: Close behind player (Player Y + offset)
+                // Player is at playerY. Behind is +Y.
+                const targetY = state.playerY + 90;
+                state.chaserY += (targetY - state.chaserY) * 3 * dt;
+            } else {
+                // Retreat off screen
+                const targetY = state.screenHeight + 200;
+                state.chaserY += (targetY - state.chaserY) * 0.5 * dt;
+            }
+
+            // Powerups
+            if (state.invincible > 0) state.invincible -= dt;
+            if (state.turbo > 0) state.turbo -= dt;
+
+            // 3. Spawning
+            if (Math.random() < dt * (state.speed / 200)) {
+                spawnObject();
+            }
+
+            // 4. Objects Movement & Collision
+            const playerRect = {
+                l: state.lane * state.laneWidth + (state.laneWidth / 2) - (state.laneWidth * 0.2),
+                r: state.lane * state.laneWidth + (state.laneWidth / 2) + (state.laneWidth * 0.2),
+                t: state.playerY - 40,
+                b: state.playerY + 40
+            };
+
+            // Adjust hitbox for slide
+            if (state.isSliding) playerRect.t += 30; // Lower top
+
+            state.objects.forEach(obj => {
+                obj.y += state.speed * dt;
+
+                if (obj.active) {
+                    // Collision Check
+                    const objX = obj.lane * state.laneWidth + (state.laneWidth / 2);
+
+                    // Simple Lane Check first
+                    if (obj.lane === state.lane) {
+                        // Y Intersection
+                        if (obj.y > playerRect.t - 50 && obj.y < playerRect.b + 50) {
+                            handleCollision(obj);
+                        }
+                    }
+                }
+
+                // Cleanup
+                if (obj.y > state.screenHeight + 100) obj.garbage = true;
+            });
+            state.objects = state.objects.filter(o => !o.garbage);
+
+            // 5. HP Regen/Decay or Chaser Logic
+            if (state.hp < 100 && state.hp > 0) state.hp += dt * 0.5; // Slow recover
+
+            // 6. UI Strings
+            document.getElementById('score-val').innerText = Math.floor(state.score);
+            document.getElementById('speed-val').innerText = Math.floor(state.speed / 10);
+
+            if (state.hp <= 0) gameOver();
+        }
+
+        function handleCollision(obj) {
+            // Distance from center Y
+            const dy = Math.abs(obj.y - state.playerY);
+            if (dy > 60) return; // Not close enough
+
+            if (state.invincible > 0 || state.turbo > 0) {
+                if (obj.category.startsWith('hazard')) {
+                    obj.active = false;
+                    createExplosion(obj.lane * state.laneWidth + state.laneWidth / 2, obj.y);
+                    return;
+                }
+            }
+
+            if (obj.category === 'item') {
+                obj.active = false;
+                if (obj.type === 'coin') {
+                    state.score += 10 + (state.combo * 2);
+                    state.combo++;
+                    audio.play('coin');
+                    showCombo();
+                } else if (obj.type === 'powerup') {
+                    if (obj.buff === 'star') { state.invincible = 5; showToast("無敵時間!"); }
+                    if (obj.buff === 'health') { state.hp = Math.min(100, state.hp + 30); updateHP(state.hp); showToast("體力恢復"); }
+                    if (obj.buff === 'shield') { state.shield = true; showToast("護盾開啟"); }
+                }
+            } else {
+                // Hazard
+                let dodged = false;
+
+                if (obj.category === 'hazard_low') {
+                    if (state.isJumping && state.jumpHeight > 10) dodged = true;
+                } else if (obj.category === 'hazard_high') {
+                    if (state.isSliding) dodged = true;
+                }
+
+                if (dodged) {
+                    if (obj.active) { // Count trick once
+                        state.score += 50;
+                        state.tricks++;
+                        state.combo++;
+                        obj.active = false; // Mark "passed"
+                        showToast("好身手!", '#FFCC00');
+                    }
+                } else {
+                    // Hit!
+                    if (obj.active) {
+                        if (state.shield) {
+                            state.shield = false;
+                            obj.active = false;
+                            audio.play('hit');
+                            showToast("護盾破碎!");
+                            return;
+                        }
+
+                        state.hp -= 35;
+                        updateHP(state.hp);
+                        state.speed *= 0.5;
+                        state.combo = 0;
+                        obj.active = false;
+                        audio.play('hit');
+                        state.combo = 0;
+                        obj.active = false;
+
+                        // Trigger Chaser
+                        state.chaserTimer = 5;
+
+                        audio.play('hit');
+                        shakeScreen();
+                    }
+                }
+            }
+        }
+
+        // --- Rendering ---
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        function render() {
+            // 0. Setup
+            state.screenWidth = canvas.width;
+            state.screenHeight = canvas.height;
+            state.laneWidth = state.screenWidth / 3;
+            state.playerY = state.screenHeight * 0.8;
+
+            // 1. Background
+            const bgColors = ['#2c3e50', '#27ae60', '#34495e']; // Hallway, Garden, Street
+            ctx.fillStyle = bgColors[state.stage];
+            ctx.fillRect(0, 0, state.screenWidth, state.screenHeight);
+
+            // Lanes
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+            for (let i = 1; i < 3; i++) {
+                ctx.beginPath();
+                ctx.moveTo(i * state.laneWidth, 0);
+                ctx.lineTo(i * state.laneWidth, state.screenHeight);
+                ctx.stroke();
+            }
+
+            // Moving Floor Effect (Lines)
+            const offset = (Date.now() * (state.speed / 1000)) % 100;
+            ctx.fillStyle = 'rgba(255,255,255,0.05)';
+            for (let i = -1; i < 10; i++) {
+                const y = (i * 100) + offset;
+                ctx.fillRect(0, y, state.screenWidth, 10);
+            }
+
+            // 2. Objects
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            state.objects.forEach(obj => {
+                if (!obj.active && obj.category !== 'item') return; // Draw disabled hazards? no
+                if (!obj.active) return;
+
+                const cx = obj.lane * state.laneWidth + state.laneWidth / 2;
+                const cy = obj.y;
+
+                // Shadow
+                ctx.fillStyle = 'rgba(0,0,0,0.3)';
+                ctx.beginPath();
+                ctx.ellipse(cx, cy + 30, 30, 10, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Sprite/Emoji
+                let fontSize = 50;
+                if (obj.category === 'hazard_high') fontSize = 60;
+
+                ctx.font = `${fontSize}px Arial`;
+                ctx.fillText(obj.label, cx, cy);
+
+                // Debug box
+                // ctx.strokeStyle = 'red';
+                // ctx.strokeRect(cx - 30, cy - 30, 60, 60);
+            });
+
+            // 3. Player (Grandma)
+            const px = state.lane * state.laneWidth + state.laneWidth / 2;
+
+            // Smooth X lerp
+            if (!state.renderX) state.renderX = px;
+            state.renderX += (px - state.renderX) * 0.2;
+
+            const py = state.playerY;
+
+            // Visual Scale based on Jump
+            let scale = 1 + (state.jumpHeight / 100);
+            if (state.isSliding) scale = 0.6;
+
+            ctx.save();
+            ctx.translate(state.renderX, py - state.jumpHeight);
+            ctx.scale(scale, scale);
+
+            // Shadow (stays on ground if jumping)
+            if (state.isJumping) {
+                ctx.save();
+                ctx.translate(0, state.jumpHeight + 60); // Ground level relative to player center
+                ctx.scale(1 / scale, 1 / scale); // Cancel parent scale
+                ctx.scale(1 - (state.jumpHeight / 200), 1 - (state.jumpHeight / 200)); // Shrink shadow
+                ctx.fillStyle = 'rgba(0,0,0,0.4)';
+                ctx.beginPath();
+                ctx.ellipse(0, 0, 40, 15, 0, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            } else {
+                // Normal Shadow
+                ctx.fillStyle = 'rgba(0,0,0,0.4)';
+                ctx.beginPath();
+                ctx.ellipse(0, 50, 40, 15, 0, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Grandma Emoji
+            const grandmaEmoji = (state.hp < 30) ? '👵🏿' : '👵🏻'; // Darker face if low hp? Or just regular.
+            // Shirt color circle
+            ctx.fillStyle = '#ff4081';
+            ctx.beginPath();
+            ctx.arc(0, 10, 35, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.font = '60px Arial';
+            ctx.fillText(grandmaEmoji, 0, 0);
+
+            // Effects
+            if (state.invincible > 0) {
+                ctx.strokeStyle = `hsl(${Date.now() % 360}, 100%, 50%)`;
+                ctx.lineWidth = 5;
+                ctx.beginPath();
+                ctx.arc(0, 0, 50, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+            if (state.shield) {
+                ctx.strokeStyle = '#3498db';
+                ctx.lineWidth = 5;
+                ctx.beginPath();
+                ctx.arc(0, 0, 55, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+
+            ctx.restore();
+
+            // 4. Chaser (Nurse)
+            // Draw if on screen
+            if (state.chaserY < state.screenHeight + 150) {
+                const nx = state.renderX; // Follows lane
+                ctx.font = '50px Arial';
+                ctx.fillText('👩‍⚕️', nx, state.chaserY);
+                ctx.font = '20px Arial';
+            }
+
+            // Particles
+            state.particles.forEach((p, i) => {
+                p.life -= 0.05;
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += 0.5; // Gravity
+
+                ctx.globalAlpha = p.life;
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.globalAlpha = 1;
+
+                if (p.life <= 0) state.particles.splice(i, 1);
+            });
+        }
+
+        // --- Utils ---
+        function loop(time) {
+            if (!state.running) return;
+            const dt = (time - state.lastTime) / 1000;
+            state.lastTime = time;
+
+            if (!state.paused) {
+                update(Math.min(dt, 0.1));
+            }
+            render();
+            requestAnimationFrame(loop);
+        }
+
+        function updateHP(val) {
+            const bar = document.getElementById('hp-bar');
+            bar.style.width = val + '%';
+            if (val < 30) bar.classList.add('hp-low');
+            else bar.classList.remove('hp-low');
+        }
+
+        function showCombo() {
+            const el = document.getElementById('combo-display');
+            if (state.combo > 1) {
+                el.innerText = `COMBO x${state.combo}`;
+                el.style.transform = 'translateX(-50%) scale(1.2)';
+                el.style.opacity = '1';
+                setTimeout(() => {
+                    el.style.transform = 'translateX(-50%) scale(0)';
+                }, 500);
+            }
+        }
+
+        function showToast(msg, color) {
+            const el = document.getElementById('powerup-toast');
+            el.innerText = msg;
+            if (color) el.style.background = color;
+            el.style.opacity = 1;
+            setTimeout(() => el.style.opacity = 0, 1500);
+        }
+
+        function createExplosion(x, y) {
+            for (let i = 0; i < 10; i++) {
+                state.particles.push({
+                    x: x, y: y,
+                    vx: (Math.random() - 0.5) * 10,
+                    vy: (Math.random() - 0.5) * 10,
+                    life: 1,
+                    color: '#fff',
+                    size: Math.random() * 5 + 2
+                });
+            }
+        }
+
+        function shakeScreen() {
+            const el = document.getElementById('game-container');
+            el.style.transform = 'translate(5px, 5px)';
+            setTimeout(() => el.style.transform = 'translate(-5px, -5px)', 50);
+            setTimeout(() => el.style.transform = 'none', 100);
+        }
+
+        function gameOver() {
+            state.running = false;
+            document.getElementById('hud').style.display = 'none';
+            document.getElementById('hp-box').style.display = 'none';
+
+            document.getElementById('game-over-screen').classList.remove('hidden');
+            document.getElementById('final-score').innerText = Math.floor(state.score);
+            document.getElementById('final-dist').innerText = Math.floor(state.distance);
+            document.getElementById('final-tricks').innerText = state.tricks;
+
+            const reasons = ["護理師追上你了!", "阿嬤，該吃藥了!", "物理治療時間到了!"];
+            document.getElementById('fail-reason').innerText = reasons[Math.floor(Math.random() * reasons.length)];
+        }
+
+        // Map resize
+        function resize() {
+            canvas.width = document.getElementById('game-container').offsetWidth;
+            canvas.height = document.getElementById('game-container').offsetHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        // Buttons
+        document.getElementById('start-btn').addEventListener('click', startGame);
+        document.getElementById('restart-btn').addEventListener('click', startGame);
+        document.getElementById('home-btn').addEventListener('click', () => {
+            document.getElementById('game-over-screen').classList.add('hidden');
+            document.getElementById('start-screen').classList.remove('hidden');
+        });
+
+        initInput();
+
+    </script>
+</body>
+
+</html>

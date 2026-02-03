@@ -118,7 +118,8 @@
         .btn {
             background: var(--primary);
             border: none;
-            padding: 18px 50px;
+            padding: 18px 20px;
+            /* Reduced horizontal padding */
             font-size: 1.5rem;
             color: white;
             border-radius: 30px;
@@ -128,6 +129,8 @@
             font-weight: 700;
             width: 80%;
             max-width: 300px;
+            white-space: nowrap;
+            /* Force single line */
         }
 
         .btn:active {
@@ -245,12 +248,110 @@
         <canvas id="gameCanvas"></canvas>
 
         <!-- Start Screen -->
-        <div id="start-screen" class="screen">
-            <h1>阿嬤逃脫 2D</h1>
-            <p>逃離養老院！<br><br>左右切換跑道<br>向上跳躍 (躲低障礙)<br>向下蹲低 (躲高障礙)</p>
-            <button class="btn" id="start-btn">快跑！</button>
-            <div class="disclaimer">請不要鼓勵家中長輩嘗試。</div>
+        <div id="start-screen" class="screen start-layout">
+            <div class="start-main">
+                <h1>阿嬤逃脫 2D</h1>
+                <p>逃離養老院！<br>左右切換跑道<br>上滑跳躍 (躲低)<br>下滑蹲低 (躲高)</p>
+                <button class="btn" id="start-btn">快跑！</button>
+                <div class="disclaimer">請不要鼓勵家中長輩嘗試。</div>
+            </div>
+
+            <div class="start-guide">
+                <h3>圖鑑說明</h3>
+                <div class="guide-grid">
+                    <div class="guide-item"><span class="icon">🧹</span><span class="desc">低障礙 (跳)</span></div>
+                    <div class="guide-item"><span class="icon">💧</span><span class="desc">低障礙 (跳)</span></div>
+                    <div class="guide-item"><span class="icon">🚕</span><span class="desc">低障礙 (跳)</span></div>
+                    <div class="guide-item"><span class="icon">👙</span><span class="desc">高障礙 (蹲)</span></div>
+                    <div class="guide-item"><span class="icon">⚡</span><span class="desc">高障礙 (蹲)</span></div>
+                    <div class="guide-item"><span class="icon">🚧</span><span class="desc">高障礙 (蹲)</span></div>
+                    <div class="guide-item"><span class="icon">🎍</span><span class="desc">路障 (閃)</span></div>
+                    <div class="guide-item"><span class="icon">🦽</span><span class="desc">路障 (閃)</span></div>
+                    <div class="guide-item"><span class="icon">⛔</span><span class="desc">路障 (閃)</span></div>
+                    <div class="guide-item"><span class="icon">👵🏻</span><span class="desc">貼紙 (+10)</span></div>
+                    <div class="guide-item"><span class="icon">⭐</span><span class="desc">無敵星星</span></div>
+                    <div class="guide-item"><span class="icon">💊</span><span class="desc">恢復體力</span></div>
+                    <div class="guide-item"><span class="icon">🛡️</span><span class="desc">假牙護盾</span></div>
+                </div>
+            </div>
         </div>
+
+        <style>
+            /* Embedded CSS update for new layout */
+            .start-layout {
+                flex-direction: row;
+                gap: 20px;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .start-main {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .start-guide {
+                flex: 0.8;
+                background: rgba(255, 255, 255, 0.1);
+                padding: 15px;
+                border-radius: 15px;
+                max-width: 250px;
+                text-align: left;
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                overflow-y: auto;
+                max-height: 80%;
+            }
+
+            .start-guide h3 {
+                margin: 0 0 10px;
+                color: var(--accent);
+                text-align: center;
+                font-size: 1.2rem;
+            }
+
+            .guide-grid {
+                display: grid;
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+
+            .guide-item {
+                display: flex;
+                align-items: center;
+                font-size: 0.9rem;
+                color: #ddd;
+            }
+
+            .guide-item .icon {
+                font-size: 1.5rem;
+                margin-right: 10px;
+                width: 30px;
+                text-align: center;
+            }
+
+            /* Mobile adjustment */
+            @media (max-width: 600px) {
+                .start-layout {
+                    flex-direction: column;
+                    justify-content: flex-start;
+                    padding-top: 60px;
+                }
+
+                .start-guide {
+                    width: 100%;
+                    max-width: 100%;
+                    margin-top: 20px;
+                    flex: none;
+                }
+
+                .guide-grid {
+                    grid-template-columns: 1fr 1fr;
+                }
+            }
+        </style>
 
         <!-- Game Over Screen -->
         <div id="game-over-screen" class="screen hidden">
@@ -411,16 +512,22 @@
 
         // --- Audio System ---
         const audio = {
+            ctx: null,
+            init() {
+                if (!this.ctx && (window.AudioContext || window.webkitAudioContext)) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+            },
             play(type) {
-                // Simple synth
-                if (!window.AudioContext) return;
-                const ctx = new (window.AudioContext || window.webkitAudioContext)();
-                const osc = ctx.createOscillator();
-                const g = ctx.createGain();
-                osc.connect(g);
-                g.connect(ctx.destination);
+                if (!this.ctx) this.init();
+                if (this.ctx.state === 'suspended') this.ctx.resume();
 
-                const now = ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const g = this.ctx.createGain();
+                osc.connect(g);
+                g.connect(this.ctx.destination);
+
+                const now = this.ctx.currentTime;
                 if (type === 'coin') {
                     osc.frequency.setValueAtTime(1200, now);
                     osc.frequency.exponentialRampToValueAtTime(1800, now + 0.1);
@@ -447,7 +554,17 @@
 
         // --- Game Logic ---
 
+        let gameLoopId = null;
+
         function startGame() {
+            if (state.running) return; // Prevent double start race condition
+
+            // Cancel any existing loop just in case
+            if (gameLoopId) {
+                cancelAnimationFrame(gameLoopId);
+                gameLoopId = null;
+            }
+
             state.running = true;
             state.score = 0;
             state.distance = 0;
@@ -459,10 +576,26 @@
             state.invincible = 0;
             state.turbo = 0;
             state.combo = 0;
-            state.combo = 0;
-            state.chaserTimer = 5; // Start with chaser
-            state.chaserY = window.innerHeight + 200; // Start off screen
+            state.chaserTimer = 5;
+            state.chaserY = window.innerHeight + 200;
+
+            // Force reset dimensions
+            resize();
+            state.laneWidth = canvas.width / 3;
+            state.screenWidth = canvas.width;
+            state.screenHeight = canvas.height;
+            state.playerY = state.screenHeight * 0.8;
+            state.renderX = state.lane * state.laneWidth + state.laneWidth / 2; // Snap to center
+
+            // Fix Jump State Initialization
+            state.jumpHeight = 0;
+            state.jumpVel = 0;
+            state.jumpVelocity = 0;
+
             state.lastTime = performance.now();
+
+            // Init Audio Context on user gesture
+            audio.init();
 
             // UI
             document.getElementById('start-screen').classList.add('hidden');
@@ -471,7 +604,7 @@
             document.getElementById('hp-box').style.display = 'block';
             updateHP(100);
 
-            requestAnimationFrame(loop);
+            loop(performance.now());
         }
 
         function move(dir) {
@@ -502,52 +635,84 @@
 
         function spawnObject() {
             const lane = Math.floor(Math.random() * 3);
-            const typeR = Math.random();
+
+            // Avoid duplicates
+            let lastType = null;
+            if (state.objects.length > 0) {
+                lastType = state.objects[state.objects.length - 1].typeLabel; // Custom prop to track variant
+            }
 
             let obj = {
                 id: Math.random(),
                 lane: lane,
-                y: -200, // Spawn above screen
+                y: -200,
                 width: state.laneWidth * 0.6,
                 height: state.laneWidth * 0.6,
                 type: 'coin',
                 active: true,
-                category: 'item' // item, hazard_low, hazard_high, hazard_block
+                category: 'item'
             };
 
             // Difficulty scaling
-            const hazardChance = 0.3 + (state.distance / 10000); // Increases
+            const hazardChance = 0.3 + (state.distance / 10000);
 
             if (Math.random() < hazardChance) {
                 // Hazard
                 const hType = Math.random();
-                if (hType < 0.33) {
-                    obj.category = 'hazard_low'; // Jump over
-                    obj.color = '#3498db'; // Water/Roomba
-                    obj.label = ['🧹', '💧', '🚕'][state.stage];
-                } else if (hType < 0.66) {
-                    obj.category = 'hazard_high'; // Slide under
-                    obj.color = '#f1c40f'; // Clothesline/Wire
-                    obj.label = ['👙', '⚡', '🚧'][state.stage];
-                    obj.height = 20; // Thin line
-                } else {
-                    obj.category = 'hazard_block'; // Dodge
-                    obj.color = '#e74c3c';
-                    obj.label = ['🎍', '🦽', '🚧'][state.stage]; // Plant, Wheelchair, Cone
-                }
+                let category, color, label, height;
+
+                // Retry loop to avoid same hazard twice in a row
+                let attempts = 0;
+                do {
+                    attempts++;
+                    const subType = Math.random();
+                    if (subType < 0.33) {
+                        category = 'hazard_low';
+                        color = '#3498db';
+                        label = ['🧹', '💧', '🚕'][state.stage];
+                    } else if (subType < 0.66) {
+                        category = 'hazard_high';
+                        color = '#f1c40f';
+                        label = ['👙', '⚡', '🚧'][state.stage];
+                        height = 20;
+                    } else {
+                        category = 'hazard_block';
+                        color = '#e74c3c';
+                        label = ['🎍', '🦽', '⛔'][state.stage];
+                    }
+                } while (label === lastType && attempts < 5);
+
+                obj.category = category;
+                obj.color = color;
+                obj.label = label;
+                if (height) obj.height = height;
+                obj.typeLabel = label; // Track for next time
+
             } else {
                 // Item
                 if (Math.random() < 0.1) {
                     obj.type = 'powerup';
-                    const buff = ['star', 'health', 'shield'][Math.floor(Math.random() * 3)];
-                    obj.label = buff === 'star' ? '⭐' : (buff === 'health' ? '💊' : '🛡️');
+                    // Retry loop for powerups
+                    let buff, label, color;
+                    let attempts = 0;
+                    do {
+                        buff = ['star', 'health', 'shield'][Math.floor(Math.random() * 3)];
+                        label = buff === 'star' ? '⭐' : (buff === 'health' ? '💊' : '🛡️');
+                        color = '#9b59b6';
+                        attempts++;
+                    } while (label === lastType && attempts < 5);
+
+                    obj.label = label;
                     obj.buff = buff;
-                    obj.color = '#9b59b6';
+                    obj.color = color;
+                    obj.typeLabel = label;
+
                 } else {
                     obj.type = 'coin';
-                    obj.label = '👵🏻'; // Sticker
+                    obj.label = '👵🏻';
                     obj.color = '#f39c12';
                     obj.width = 40; obj.height = 40;
+                    obj.typeLabel = 'coin';
                 }
             }
 
@@ -597,7 +762,15 @@
             if (state.turbo > 0) state.turbo -= dt;
 
             // 3. Spawning
-            if (Math.random() < dt * (state.speed / 200)) {
+            let canSpawn = true;
+            if (state.objects.length > 0) {
+                const lastObj = state.objects[state.objects.length - 1];
+                // Check if last object is too close to top spawn point (-200)
+                // If lastObj.y is < -50, it means it just spawned and hasn't moved down enough (gap of ~150px)
+                if (lastObj.y < -50) canSpawn = false;
+            }
+
+            if (canSpawn && Math.random() < dt * (state.speed / 200)) {
                 spawnObject();
             }
 
@@ -877,11 +1050,12 @@
             const dt = (time - state.lastTime) / 1000;
             state.lastTime = time;
 
-            if (!state.paused) {
+            // Prevent huge dt (e.g. switching tabs)
+            if (!state.paused && dt < 0.5) {
                 update(Math.min(dt, 0.1));
             }
             render();
-            requestAnimationFrame(loop);
+            gameLoopId = requestAnimationFrame(loop);
         }
 
         function updateHP(val) {

@@ -273,6 +273,7 @@
                     <div id="name-error" class="name-error">請先輸入名字！</div>
                 </div>
                 <button class="btn" id="start-btn">快跑！</button>
+                <button class="btn btn-secondary" id="pokedex-btn">📖 圖鑑說明</button>
                 <div class="disclaimer">請不要鼓勵家中長輩嘗試。</div>
             </div>
 
@@ -654,6 +655,135 @@
                 color: rgba(255, 255, 255, 0.7);
             }
 
+            /* Full Page Pokedex */
+            .fullpage-pokedex {
+                background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 20px;
+                z-index: 1000;
+            }
+
+            .fullpage-pokedex-container {
+                background: rgba(255, 255, 255, 0.08);
+                border-radius: 20px;
+                padding: 25px;
+                width: 100%;
+                max-width: 500px;
+                max-height: 90vh;
+                display: flex;
+                flex-direction: column;
+                border: 1px solid rgba(255, 255, 255, 0.15);
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            }
+
+            .fullpage-pokedex-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 20px;
+                padding-bottom: 15px;
+                border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            }
+
+            .fullpage-pokedex-header h2 {
+                margin: 0;
+                font-size: 1.8rem;
+                color: var(--accent);
+            }
+
+            .fullpage-pokedex-close {
+                background: rgba(255, 255, 255, 0.1);
+                border: none;
+                color: white;
+                font-size: 2rem;
+                width: 45px;
+                height: 45px;
+                border-radius: 50%;
+                cursor: pointer;
+                transition: background 0.2s, transform 0.2s;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                line-height: 1;
+            }
+
+            .fullpage-pokedex-close:hover {
+                background: rgba(255, 100, 100, 0.3);
+                transform: scale(1.1);
+            }
+
+            .fullpage-pokedex-content {
+                flex: 1;
+                overflow-y: auto;
+                min-height: 300px;
+            }
+
+            .pokedex-section {
+                margin-bottom: 20px;
+            }
+
+            .pokedex-section-title {
+                font-size: 1.2rem;
+                color: var(--accent);
+                margin-bottom: 12px;
+                padding-bottom: 8px;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            }
+
+            .pokedex-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+                gap: 12px;
+            }
+
+            .pokedex-item {
+                display: flex;
+                align-items: center;
+                background: rgba(255, 255, 255, 0.05);
+                padding: 12px;
+                border-radius: 12px;
+                transition: background 0.2s, transform 0.2s;
+            }
+
+            .pokedex-item:hover {
+                background: rgba(255, 255, 255, 0.1);
+                transform: scale(1.02);
+            }
+
+            .pokedex-item .pokedex-icon {
+                font-size: 2rem;
+                margin-right: 12px;
+                width: 40px;
+                text-align: center;
+            }
+
+            .pokedex-item .pokedex-desc {
+                font-size: 0.95rem;
+                color: #ddd;
+            }
+
+            .pokedex-item.hazard-low {
+                border-left: 3px solid #3498db;
+            }
+
+            .pokedex-item.hazard-high {
+                border-left: 3px solid #f1c40f;
+            }
+
+            .pokedex-item.hazard-block {
+                border-left: 3px solid #e74c3c;
+            }
+
+            .pokedex-item.powerup {
+                border-left: 3px solid #9b59b6;
+            }
+
+            .pokedex-item.coin {
+                border-left: 3px solid #f39c12;
+            }
+
             /* Mobile adjustment */
             @media (max-width: 600px) {
                 .start-layout {
@@ -712,6 +842,19 @@
                     padding: 10px 14px;
                     font-size: 0.9rem;
                 }
+
+                .fullpage-pokedex-container {
+                    padding: 20px 15px;
+                    max-height: 95vh;
+                }
+
+                .fullpage-pokedex-header h2 {
+                    font-size: 1.5rem;
+                }
+
+                .pokedex-grid {
+                    grid-template-columns: 1fr;
+                }
             }
         </style>
 
@@ -756,6 +899,93 @@
             </div>
         </div>
 
+        <!-- Full Page Pokedex Overlay -->
+        <div id="fullpage-pokedex" class="screen hidden fullpage-pokedex">
+            <div class="fullpage-pokedex-container">
+                <div class="fullpage-pokedex-header">
+                    <h2>📖 圖鑑說明</h2>
+                    <button class="fullpage-pokedex-close" id="fullpage-pokedex-close">&times;</button>
+                </div>
+                <div class="fullpage-pokedex-content" id="fullpage-pokedex-content">
+                    <div class="pokedex-section">
+                        <div class="pokedex-section-title">🦘 低障礙 (跳躍閃避)</div>
+                        <div class="pokedex-grid">
+                            <div class="pokedex-item hazard-low">
+                                <span class="pokedex-icon">🧹</span>
+                                <span class="pokedex-desc">掃把</span>
+                            </div>
+                            <div class="pokedex-item hazard-low">
+                                <span class="pokedex-icon">💧</span>
+                                <span class="pokedex-desc">水漬</span>
+                            </div>
+                            <div class="pokedex-item hazard-low">
+                                <span class="pokedex-icon">🚕</span>
+                                <span class="pokedex-desc">計程車</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pokedex-section">
+                        <div class="pokedex-section-title">🙇 高障礙 (蹲下閃避)</div>
+                        <div class="pokedex-grid">
+                            <div class="pokedex-item hazard-high">
+                                <span class="pokedex-icon">👙</span>
+                                <span class="pokedex-desc">曬衣繩</span>
+                            </div>
+                            <div class="pokedex-item hazard-high">
+                                <span class="pokedex-icon">⚡</span>
+                                <span class="pokedex-desc">電線</span>
+                            </div>
+                            <div class="pokedex-item hazard-high">
+                                <span class="pokedex-icon">🚧</span>
+                                <span class="pokedex-desc">警示帶</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pokedex-section">
+                        <div class="pokedex-section-title">🚫 路障 (切換跑道閃避)</div>
+                        <div class="pokedex-grid">
+                            <div class="pokedex-item hazard-block">
+                                <span class="pokedex-icon">🎍</span>
+                                <span class="pokedex-desc">盆栽</span>
+                            </div>
+                            <div class="pokedex-item hazard-block">
+                                <span class="pokedex-icon">🦽</span>
+                                <span class="pokedex-desc">輪椅</span>
+                            </div>
+                            <div class="pokedex-item hazard-block">
+                                <span class="pokedex-icon">⛔</span>
+                                <span class="pokedex-desc">禁止通行</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pokedex-section">
+                        <div class="pokedex-section-title">✨ 道具</div>
+                        <div class="pokedex-grid">
+                            <div class="pokedex-item coin">
+                                <span class="pokedex-icon">👵🏻</span>
+                                <span class="pokedex-desc">阿嬤貼紙 (+10分)</span>
+                            </div>
+                            <div class="pokedex-item powerup">
+                                <span class="pokedex-icon">⭐</span>
+                                <span class="pokedex-desc">無敵星星 (5秒無敵)</span>
+                            </div>
+                            <div class="pokedex-item powerup">
+                                <span class="pokedex-icon">💊</span>
+                                <span class="pokedex-desc">維他命 (+30體力)</span>
+                            </div>
+                            <div class="pokedex-item powerup">
+                                <span class="pokedex-icon">🛡️</span>
+                                <span class="pokedex-desc">假牙護盾 (擋一次傷害)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- HUD -->
         <div id="hud" style="display: none;">
             <div class="score-pill">🏆 <span id="score-val">0</span></div>
@@ -779,6 +1009,44 @@
          * Grandma Escape 2D - Top Down Version
          * Focuses on clean 2D graphics and smooth 60fps gameplay.
          */
+
+        // --- Error Codes ---
+        const ErrorCodes = {
+            // Firebase errors (1xxx)
+            FIREBASE_INIT_FAILED: { code: 1001, message: 'Firebase 初始化失敗' },
+            FIREBASE_SUBMIT_SCORE_FAILED: { code: 1002, message: '分數上傳失敗' },
+            FIREBASE_FETCH_LEADERBOARD_FAILED: { code: 1003, message: '排行榜載入失敗' },
+            FIREBASE_NETWORK_ERROR: { code: 1004, message: '網路連線錯誤' },
+            FIREBASE_PERMISSION_DENIED: { code: 1005, message: '權限不足' },
+
+            // Input validation errors (2xxx)
+            INPUT_NAME_REQUIRED: { code: 2001, message: '請先輸入名字' },
+            INPUT_NAME_TOO_LONG: { code: 2002, message: '名字太長' },
+            INPUT_INVALID_FORMAT: { code: 2003, message: '輸入格式錯誤' },
+
+            // Game state errors (3xxx)
+            GAME_ALREADY_RUNNING: { code: 3001, message: '遊戲已在執行中' },
+            GAME_NOT_INITIALIZED: { code: 3002, message: '遊戲尚未初始化' },
+            GAME_CANVAS_NOT_FOUND: { code: 3003, message: '找不到畫布元素' },
+
+            // Audio errors (4xxx)
+            AUDIO_CONTEXT_FAILED: { code: 4001, message: '音效初始化失敗' },
+            AUDIO_NOT_SUPPORTED: { code: 4002, message: '瀏覽器不支援音效' },
+
+            // Generic errors (9xxx)
+            UNKNOWN_ERROR: { code: 9999, message: '未知錯誤' }
+        };
+
+        // Error handler function
+        function handleError(errorCode, originalError = null) {
+            const error = {
+                ...errorCode,
+                timestamp: Date.now(),
+                originalError: originalError ? originalError.message || originalError : null
+            };
+            console.error(`[Error ${error.code}] ${error.message}`, originalError || '');
+            return error;
+        }
 
         // --- Engine Config ---
         const CONFIG = {
@@ -904,40 +1172,57 @@
         const audio = {
             ctx: null,
             init() {
-                if (!this.ctx && (window.AudioContext || window.webkitAudioContext)) {
-                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                try {
+                    if (!this.ctx && (window.AudioContext || window.webkitAudioContext)) {
+                        this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                    } else if (!window.AudioContext && !window.webkitAudioContext) {
+                        return handleError(ErrorCodes.AUDIO_NOT_SUPPORTED);
+                    }
+                } catch (e) {
+                    return handleError(ErrorCodes.AUDIO_CONTEXT_FAILED, e);
                 }
+                return null;
             },
             play(type) {
-                if (!this.ctx) this.init();
-                if (this.ctx.state === 'suspended') this.ctx.resume();
+                if (!this.ctx) {
+                    const initError = this.init();
+                    if (initError) return initError;
+                }
+                if (!this.ctx) return handleError(ErrorCodes.AUDIO_CONTEXT_FAILED);
 
-                const osc = this.ctx.createOscillator();
-                const g = this.ctx.createGain();
-                osc.connect(g);
-                g.connect(this.ctx.destination);
+                try {
+                    if (this.ctx.state === 'suspended') this.ctx.resume();
 
-                const now = this.ctx.currentTime;
-                if (type === 'coin') {
-                    osc.frequency.setValueAtTime(1200, now);
-                    osc.frequency.exponentialRampToValueAtTime(1800, now + 0.1);
-                    g.gain.setValueAtTime(0.2, now);
-                    g.gain.linearRampToValueAtTime(0, now + 0.1);
-                    osc.start(now); osc.stop(now + 0.1);
-                } else if (type === 'jump') {
-                    osc.type = 'square';
-                    osc.frequency.setValueAtTime(300, now);
-                    osc.frequency.linearRampToValueAtTime(600, now + 0.15);
-                    g.gain.setValueAtTime(0.1, now);
-                    g.gain.linearRampToValueAtTime(0, now + 0.15);
-                    osc.start(now); osc.stop(now + 0.15);
-                } else if (type === 'hit') {
-                    osc.type = 'sawtooth';
-                    osc.frequency.setValueAtTime(100, now);
-                    osc.frequency.exponentialRampToValueAtTime(20, now + 0.3);
-                    g.gain.setValueAtTime(0.3, now);
-                    g.gain.linearRampToValueAtTime(0, now + 0.3);
-                    osc.start(now); osc.stop(now + 0.3);
+                    const osc = this.ctx.createOscillator();
+                    const g = this.ctx.createGain();
+                    osc.connect(g);
+                    g.connect(this.ctx.destination);
+
+                    const now = this.ctx.currentTime;
+                    if (type === 'coin') {
+                        osc.frequency.setValueAtTime(1200, now);
+                        osc.frequency.exponentialRampToValueAtTime(1800, now + 0.1);
+                        g.gain.setValueAtTime(0.2, now);
+                        g.gain.linearRampToValueAtTime(0, now + 0.1);
+                        osc.start(now); osc.stop(now + 0.1);
+                    } else if (type === 'jump') {
+                        osc.type = 'square';
+                        osc.frequency.setValueAtTime(300, now);
+                        osc.frequency.linearRampToValueAtTime(600, now + 0.15);
+                        g.gain.setValueAtTime(0.1, now);
+                        g.gain.linearRampToValueAtTime(0, now + 0.15);
+                        osc.start(now); osc.stop(now + 0.15);
+                    } else if (type === 'hit') {
+                        osc.type = 'sawtooth';
+                        osc.frequency.setValueAtTime(100, now);
+                        osc.frequency.exponentialRampToValueAtTime(20, now + 0.3);
+                        g.gain.setValueAtTime(0.3, now);
+                        g.gain.linearRampToValueAtTime(0, now + 0.3);
+                        osc.start(now); osc.stop(now + 0.3);
+                    }
+                    return null;
+                } catch (e) {
+                    return handleError(ErrorCodes.AUDIO_CONTEXT_FAILED, e);
                 }
             }
         };
@@ -947,7 +1232,9 @@
         let gameLoopId = null;
 
         function startGame() {
-            if (state.running) return; // Prevent double start race condition
+            if (state.running) {
+                return handleError(ErrorCodes.GAME_ALREADY_RUNNING);
+            }
 
             // Validate player name
             const nameInput = document.getElementById('player-name');
@@ -957,7 +1244,13 @@
             if (!playerName) {
                 nameError.style.display = 'block';
                 nameInput.focus();
-                return;
+                return handleError(ErrorCodes.INPUT_NAME_REQUIRED);
+            }
+            if (playerName.length > 12) {
+                nameError.textContent = '名字太長！';
+                nameError.style.display = 'block';
+                nameInput.focus();
+                return handleError(ErrorCodes.INPUT_NAME_TOO_LONG);
             }
             nameError.style.display = 'none';
             state.playerName = playerName;
@@ -1008,6 +1301,7 @@
             updateHP(100);
 
             loop(performance.now());
+            return null;
         }
 
         function move(dir) {
@@ -1021,7 +1315,7 @@
                 state.isJumping = true;
                 state.jumpVelocity = -800; // Up is negative in screen space? No, JumpY is visual offset
                 // Actually for Top-Down, Y is screen Y.
-                // We simulate jump by SCALE. 
+                // We simulate jump by SCALE.
                 // Let's use jumpY as a "Z height" variable.
                 state.jumpHeight = 0;
                 state.jumpVel = 15; // Initial upward launch
@@ -1516,6 +1810,14 @@
                 distance: Math.floor(distance),
                 tricks: tricks,
                 timestamp: Date.now()
+            }).catch(err => {
+                let errorCode = ErrorCodes.FIREBASE_SUBMIT_SCORE_FAILED;
+                if (err.code === 'PERMISSION_DENIED') {
+                    errorCode = ErrorCodes.FIREBASE_PERMISSION_DENIED;
+                } else if (err.message && err.message.includes('network')) {
+                    errorCode = ErrorCodes.FIREBASE_NETWORK_ERROR;
+                }
+                throw handleError(errorCode, err);
             });
         }
 
@@ -1534,17 +1836,28 @@
                     });
                     // Sort descending (highest first)
                     scores.sort((a, b) => b.score - a.score);
-                    callback(scores);
+                    callback(scores, null);
                 })
                 .catch(err => {
-                    console.error('Failed to fetch leaderboard:', err);
-                    callback([]);
+                    let errorCode = ErrorCodes.FIREBASE_FETCH_LEADERBOARD_FAILED;
+                    if (err.code === 'PERMISSION_DENIED') {
+                        errorCode = ErrorCodes.FIREBASE_PERMISSION_DENIED;
+                    } else if (err.message && err.message.includes('network')) {
+                        errorCode = ErrorCodes.FIREBASE_NETWORK_ERROR;
+                    }
+                    const error = handleError(errorCode, err);
+                    callback([], error);
                 });
         }
 
-        function renderLeaderboard(scores, containerId, currentScore) {
+        function renderLeaderboard(scores, containerId, currentScore, error = null) {
             const container = document.getElementById(containerId);
             if (!container) return;
+
+            if (error) {
+                container.innerHTML = `<div class="leaderboard-loading">無法載入排行榜 (錯誤代碼: ${error.code})</div>`;
+                return;
+            }
 
             if (scores.length === 0) {
                 container.innerHTML = '<div class="leaderboard-loading">無法載入排行榜</div>';
@@ -1569,8 +1882,8 @@
 
         function loadStartLeaderboard() {
             document.getElementById('start-leaderboard-content').innerHTML = '<div class="leaderboard-loading">載入中...</div>';
-            fetchLeaderboard(scores => {
-                renderLeaderboard(scores, 'start-leaderboard-content');
+            fetchLeaderboard((scores, error) => {
+                renderLeaderboard(scores, 'start-leaderboard-content', undefined, error);
             });
         }
 
@@ -1585,6 +1898,7 @@
             scores: [],
             currentPage: 0,
             itemsPerPage: 10,
+            lastError: null,
 
             get totalPages() {
                 return Math.ceil(this.scores.length / this.itemsPerPage);
@@ -1594,9 +1908,10 @@
                 document.getElementById('fullpage-leaderboard').classList.remove('hidden');
                 document.getElementById('fullpage-lb-content').innerHTML = '<div class="leaderboard-loading">載入中...</div>';
 
-                fetchLeaderboard(scores => {
+                fetchLeaderboard((scores, error) => {
                     this.scores = scores;
                     this.currentPage = 0;
+                    this.lastError = error;
                     this.render();
                 });
             },
@@ -1610,6 +1925,14 @@
                 const pageInfo = document.getElementById('lb-page-info');
                 const prevBtn = document.getElementById('lb-prev-btn');
                 const nextBtn = document.getElementById('lb-next-btn');
+
+                if (this.lastError) {
+                    container.innerHTML = `<div class="leaderboard-loading">無法載入排行榜 (錯誤代碼: ${this.lastError.code})</div>`;
+                    pageInfo.textContent = '0 / 0';
+                    prevBtn.disabled = true;
+                    nextBtn.disabled = true;
+                    return;
+                }
 
                 if (this.scores.length === 0) {
                     container.innerHTML = '<div class="leaderboard-loading">無法載入排行榜</div>';
@@ -1659,11 +1982,26 @@
             }
         };
 
+        // Full Page Pokedex System
+        const fullpagePokedex = {
+            open() {
+                document.getElementById('fullpage-pokedex').classList.remove('hidden');
+            },
+
+            close() {
+                document.getElementById('fullpage-pokedex').classList.add('hidden');
+            }
+        };
+
         // Full Page Leaderboard Event Listeners
         document.querySelector('.start-leaderboard').addEventListener('click', () => fullpageLB.open());
         document.getElementById('fullpage-lb-close').addEventListener('click', () => fullpageLB.close());
         document.getElementById('lb-prev-btn').addEventListener('click', () => fullpageLB.prevPage());
         document.getElementById('lb-next-btn').addEventListener('click', () => fullpageLB.nextPage());
+
+        // Full Page Pokedex Event Listeners
+        document.getElementById('pokedex-btn').addEventListener('click', () => fullpagePokedex.open());
+        document.getElementById('fullpage-pokedex-close').addEventListener('click', () => fullpagePokedex.close());
 
         function gameOver() {
             state.running = false;
@@ -1686,15 +2024,19 @@
             submitScore(state.playerName, state.score, state.distance, state.tricks)
                 .then(() => {
                     // Fetch and display leaderboard
-                    fetchLeaderboard(scores => {
-                        renderLeaderboard(scores, 'leaderboard-content', finalScore);
+                    fetchLeaderboard((scores, error) => {
+                        renderLeaderboard(scores, 'leaderboard-content', finalScore, error);
                     });
                 })
                 .catch(err => {
                     console.error('Failed to submit score:', err);
+                    document.getElementById('leaderboard-content').innerHTML =
+                        `<div class="leaderboard-loading">分數上傳失敗 (錯誤代碼: ${err.code || ErrorCodes.UNKNOWN_ERROR.code})</div>`;
                     // Still try to fetch leaderboard
-                    fetchLeaderboard(scores => {
-                        renderLeaderboard(scores, 'leaderboard-content', finalScore);
+                    fetchLeaderboard((scores, error) => {
+                        if (scores.length > 0) {
+                            renderLeaderboard(scores, 'leaderboard-content', finalScore, error);
+                        }
                     });
                 });
         }

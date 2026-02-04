@@ -422,7 +422,8 @@
             .leaderboard h3 {
                 margin: 0 0 15px;
                 color: var(--accent);
-                font-size: 1.4rem;
+                font-size: 1.1rem;
+                white-space: nowrap;
             }
 
             .leaderboard-list {
@@ -446,6 +447,15 @@
             .leaderboard-item.current-player {
                 color: var(--accent);
                 font-weight: bold;
+            }
+
+            .leaderboard-item.first-place .leaderboard-name {
+                animation: blink 1s ease-in-out infinite;
+            }
+
+            @keyframes blink {
+                0%, 100% { opacity: 1; }
+                50% { opacity: 0.3; }
             }
 
             .leaderboard-rank {
@@ -1546,7 +1556,7 @@
                 const isCurrentPlayer = currentScore !== undefined && entry.name === state.playerName && entry.score === currentScore;
                 const rankEmoji = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}`;
                 html += `
-                    <li class="leaderboard-item ${isCurrentPlayer ? 'current-player' : ''}">
+                    <li class="leaderboard-item ${isCurrentPlayer ? 'current-player' : ''} ${index === 0 ? 'first-place' : ''}">
                         <span class="leaderboard-rank">${rankEmoji}</span>
                         <span class="leaderboard-name">${escapeHtml(entry.name)}</span>
                         <span class="leaderboard-score">${entry.score}</span>
@@ -1618,7 +1628,7 @@
                     const globalIndex = start + index;
                     const rankEmoji = globalIndex === 0 ? '🥇' : globalIndex === 1 ? '🥈' : globalIndex === 2 ? '🥉' : `${globalIndex + 1}`;
                     html += `
-                        <li class="leaderboard-item">
+                        <li class="leaderboard-item ${globalIndex === 0 ? 'first-place' : ''}">
                             <span class="leaderboard-rank">${rankEmoji}</span>
                             <span class="leaderboard-name">${escapeHtml(entry.name)}</span>
                             <span class="leaderboard-score">${entry.score}</span>

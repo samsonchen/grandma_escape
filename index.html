@@ -272,8 +272,10 @@
                     <input type="text" id="player-name" class="name-input" placeholder="輸入你的名字" maxlength="12">
                     <div id="name-error" class="name-error">請先輸入名字！</div>
                 </div>
-                <button class="btn" id="start-btn">快跑！</button>
-                <button class="btn btn-secondary" id="pokedex-btn">📖 圖鑑說明</button>
+                <div class="btn-row">
+                    <button class="btn" id="start-btn">快跑！</button>
+                    <button class="btn btn-guide" id="pokedex-btn">圖鑑說明</button>
+                </div>
                 <div class="disclaimer">請不要鼓勵家中長輩嘗試。</div>
             </div>
 
@@ -371,6 +373,27 @@
                 margin-right: 10px;
                 width: 30px;
                 text-align: center;
+            }
+
+            /* Button row for side-by-side buttons */
+            .btn-row {
+                display: flex;
+                gap: 10px;
+                width: 100%;
+                max-width: 300px;
+                justify-content: center;
+            }
+
+            .btn-row .btn {
+                flex: 1;
+                width: auto;
+                padding: 18px 10px;
+                font-size: 1.2rem;
+            }
+
+            .btn-guide {
+                background: var(--secondary);
+                box-shadow: 0 10px 30px rgba(88, 86, 214, 0.4);
             }
 
             /* Name input */
@@ -799,6 +822,16 @@
 
                 .start-main p {
                     margin-bottom: 15px;
+                }
+
+                .btn-row {
+                    flex-direction: row;
+                    max-width: 280px;
+                }
+
+                .btn-row .btn {
+                    font-size: 1rem;
+                    padding: 15px 8px;
                 }
 
                 .start-sidebar {

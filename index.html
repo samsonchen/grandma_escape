@@ -243,6 +243,22 @@
 </head>
 
 <body>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDLsS9D-sBApxF_M3Lp7om18XIgTgmy0Ck",
+            authDomain: "grandma-escape-87470.firebaseapp.com",
+            databaseURL: "https://grandma-escape-87470-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "grandma-escape-87470",
+            storageBucket: "grandma-escape-87470.firebasestorage.app",
+            messagingSenderId: "347645927509",
+            appId: "1:347645927509:web:5a574f3a47b1cea7f374dc"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+    </script>
 
     <div id="game-container">
         <canvas id="gameCanvas"></canvas>
@@ -252,6 +268,10 @@
             <div class="start-main">
                 <h1>阿嬤逃脫 2D</h1>
                 <p>逃離養老院！<br>左右切換跑道<br>上滑跳躍 (躲低)<br>下滑蹲低 (躲高)</p>
+                <div class="name-input-container">
+                    <input type="text" id="player-name" class="name-input" placeholder="輸入你的名字" maxlength="12">
+                    <div id="name-error" class="name-error">請先輸入名字！</div>
+                </div>
                 <button class="btn" id="start-btn">快跑！</button>
                 <div class="disclaimer">請不要鼓勵家中長輩嘗試。</div>
             </div>
@@ -332,6 +352,107 @@
                 text-align: center;
             }
 
+            /* Name input */
+            .name-input-container {
+                margin-bottom: 20px;
+                width: 100%;
+                max-width: 250px;
+            }
+
+            .name-input {
+                width: 100%;
+                padding: 12px 16px;
+                font-size: 1.2rem;
+                border: 2px solid rgba(255, 255, 255, 0.3);
+                border-radius: 15px;
+                background: rgba(255, 255, 255, 0.1);
+                color: white;
+                text-align: center;
+                outline: none;
+                transition: border-color 0.3s;
+            }
+
+            .name-input::placeholder {
+                color: rgba(255, 255, 255, 0.5);
+            }
+
+            .name-input:focus {
+                border-color: var(--primary);
+            }
+
+            .name-error {
+                color: var(--primary);
+                font-size: 0.9rem;
+                margin-top: 8px;
+                display: none;
+            }
+
+            /* Leaderboard */
+            .leaderboard {
+                background: rgba(255, 255, 255, 0.1);
+                border-radius: 15px;
+                padding: 15px;
+                margin: 15px 0;
+                max-height: 300px;
+                overflow-y: auto;
+                width: 100%;
+                max-width: 320px;
+            }
+
+            .leaderboard h3 {
+                margin: 0 0 10px;
+                color: var(--accent);
+                font-size: 1.1rem;
+            }
+
+            .leaderboard-list {
+                list-style: none;
+                padding: 0;
+                margin: 0;
+            }
+
+            .leaderboard-item {
+                display: flex;
+                justify-content: space-between;
+                padding: 8px 0;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                font-size: 0.95rem;
+            }
+
+            .leaderboard-item:last-child {
+                border-bottom: none;
+            }
+
+            .leaderboard-item.current-player {
+                color: var(--accent);
+                font-weight: bold;
+            }
+
+            .leaderboard-rank {
+                width: 30px;
+                text-align: left;
+            }
+
+            .leaderboard-name {
+                flex: 1;
+                text-align: left;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                margin: 0 10px;
+            }
+
+            .leaderboard-score {
+                text-align: right;
+                min-width: 60px;
+            }
+
+            .leaderboard-loading {
+                text-align: center;
+                color: rgba(255, 255, 255, 0.5);
+                padding: 20px;
+            }
+
             /* Mobile adjustment */
             @media (max-width: 600px) {
                 .start-layout {
@@ -358,15 +479,22 @@
             <h1 style="color:var(--primary)">被抓到了</h1>
             <h2 id="fail-reason">護理師追上你了</h2>
 
-            <div style="font-size: 4rem; font-weight: 800; margin: 20px 0;" id="final-score">0</div>
-            <p>
-                距離: <span id="final-dist">0</span>m<br>
+            <div style="font-size: 3rem; font-weight: 800; margin: 10px 0;" id="final-score">0</div>
+            <p style="margin-bottom: 10px;">
+                距離: <span id="final-dist">0</span>m
                 特技: <span id="final-tricks">0</span> 次
             </p>
 
+            <!-- Leaderboard -->
+            <div class="leaderboard">
+                <h3>🏆 排行榜 Top 30</h3>
+                <div id="leaderboard-content">
+                    <div class="leaderboard-loading">載入中...</div>
+                </div>
+            </div>
+
             <button class="btn" id="restart-btn">再次逃跑</button>
             <button class="btn btn-secondary" id="home-btn">返回首頁</button>
-            <div class="disclaimer">請不要鼓勵家中長輩嘗試。</div>
         </div>
 
         <!-- HUD -->
@@ -416,6 +544,9 @@
             paused: false,
             dt: 0,
             lastTime: 0,
+
+            // Player Info
+            playerName: '',
 
             // Player
             lane: 1, // 0, 1, 2
@@ -558,6 +689,19 @@
 
         function startGame() {
             if (state.running) return; // Prevent double start race condition
+
+            // Validate player name
+            const nameInput = document.getElementById('player-name');
+            const nameError = document.getElementById('name-error');
+            const playerName = nameInput.value.trim();
+
+            if (!playerName) {
+                nameError.style.display = 'block';
+                nameInput.focus();
+                return;
+            }
+            nameError.style.display = 'none';
+            state.playerName = playerName;
 
             // Cancel any existing loop just in case
             if (gameLoopId) {
@@ -1105,18 +1249,102 @@
             setTimeout(() => el.style.transform = 'none', 100);
         }
 
+        // --- Firebase Leaderboard ---
+        function submitScore(name, score, distance, tricks) {
+            return db.ref('scores').push({
+                name: name,
+                score: Math.floor(score),
+                distance: Math.floor(distance),
+                tricks: tricks,
+                timestamp: Date.now()
+            });
+        }
+
+        function fetchLeaderboard(callback) {
+            db.ref('scores')
+                .orderByChild('score')
+                .limitToLast(30)
+                .once('value')
+                .then(snapshot => {
+                    const scores = [];
+                    snapshot.forEach(child => {
+                        scores.push({
+                            id: child.key,
+                            ...child.val()
+                        });
+                    });
+                    // Sort descending (highest first)
+                    scores.sort((a, b) => b.score - a.score);
+                    callback(scores);
+                })
+                .catch(err => {
+                    console.error('Failed to fetch leaderboard:', err);
+                    callback([]);
+                });
+        }
+
+        function renderLeaderboard(scores, currentScore) {
+            const container = document.getElementById('leaderboard-content');
+
+            if (scores.length === 0) {
+                container.innerHTML = '<div class="leaderboard-loading">無法載入排行榜</div>';
+                return;
+            }
+
+            let html = '<ul class="leaderboard-list">';
+            scores.forEach((entry, index) => {
+                const isCurrentPlayer = entry.name === state.playerName && entry.score === currentScore;
+                const rankEmoji = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}`;
+                html += `
+                    <li class="leaderboard-item ${isCurrentPlayer ? 'current-player' : ''}">
+                        <span class="leaderboard-rank">${rankEmoji}</span>
+                        <span class="leaderboard-name">${escapeHtml(entry.name)}</span>
+                        <span class="leaderboard-score">${entry.score}</span>
+                    </li>
+                `;
+            });
+            html += '</ul>';
+            container.innerHTML = html;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
         function gameOver() {
             state.running = false;
             document.getElementById('hud').style.display = 'none';
             document.getElementById('hp-box').style.display = 'none';
 
             document.getElementById('game-over-screen').classList.remove('hidden');
-            document.getElementById('final-score').innerText = Math.floor(state.score);
+            const finalScore = Math.floor(state.score);
+            document.getElementById('final-score').innerText = finalScore;
             document.getElementById('final-dist').innerText = Math.floor(state.distance);
             document.getElementById('final-tricks').innerText = state.tricks;
 
             const reasons = ["護理師追上你了!", "阿嬤，該吃藥了!", "物理治療時間到了!"];
             document.getElementById('fail-reason').innerText = reasons[Math.floor(Math.random() * reasons.length)];
+
+            // Show loading state for leaderboard
+            document.getElementById('leaderboard-content').innerHTML = '<div class="leaderboard-loading">上傳分數中...</div>';
+
+            // Submit score to Firebase
+            submitScore(state.playerName, state.score, state.distance, state.tricks)
+                .then(() => {
+                    // Fetch and display leaderboard
+                    fetchLeaderboard(scores => {
+                        renderLeaderboard(scores, finalScore);
+                    });
+                })
+                .catch(err => {
+                    console.error('Failed to submit score:', err);
+                    // Still try to fetch leaderboard
+                    fetchLeaderboard(scores => {
+                        renderLeaderboard(scores, finalScore);
+                    });
+                });
         }
 
         // Map resize

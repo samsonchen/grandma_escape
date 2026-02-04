@@ -276,22 +276,32 @@
                 <div class="disclaimer">請不要鼓勵家中長輩嘗試。</div>
             </div>
 
-            <div class="start-guide">
-                <h3>圖鑑說明</h3>
-                <div class="guide-grid">
-                    <div class="guide-item"><span class="icon">🧹</span><span class="desc">低障礙 (跳)</span></div>
-                    <div class="guide-item"><span class="icon">💧</span><span class="desc">低障礙 (跳)</span></div>
-                    <div class="guide-item"><span class="icon">🚕</span><span class="desc">低障礙 (跳)</span></div>
-                    <div class="guide-item"><span class="icon">👙</span><span class="desc">高障礙 (蹲)</span></div>
-                    <div class="guide-item"><span class="icon">⚡</span><span class="desc">高障礙 (蹲)</span></div>
-                    <div class="guide-item"><span class="icon">🚧</span><span class="desc">高障礙 (蹲)</span></div>
-                    <div class="guide-item"><span class="icon">🎍</span><span class="desc">路障 (閃)</span></div>
-                    <div class="guide-item"><span class="icon">🦽</span><span class="desc">路障 (閃)</span></div>
-                    <div class="guide-item"><span class="icon">⛔</span><span class="desc">路障 (閃)</span></div>
-                    <div class="guide-item"><span class="icon">👵🏻</span><span class="desc">貼紙 (+10)</span></div>
-                    <div class="guide-item"><span class="icon">⭐</span><span class="desc">無敵星星</span></div>
-                    <div class="guide-item"><span class="icon">💊</span><span class="desc">恢復體力</span></div>
-                    <div class="guide-item"><span class="icon">🛡️</span><span class="desc">假牙護盾</span></div>
+            <div class="start-sidebar">
+                <!-- Leaderboard on start screen -->
+                <div class="leaderboard start-leaderboard">
+                    <h3>🏆 排行榜 Top 30</h3>
+                    <div id="start-leaderboard-content">
+                        <div class="leaderboard-loading">載入中...</div>
+                    </div>
+                </div>
+
+                <div class="start-guide">
+                    <h3>圖鑑說明</h3>
+                    <div class="guide-grid">
+                        <div class="guide-item"><span class="icon">🧹</span><span class="desc">低障礙 (跳)</span></div>
+                        <div class="guide-item"><span class="icon">💧</span><span class="desc">低障礙 (跳)</span></div>
+                        <div class="guide-item"><span class="icon">🚕</span><span class="desc">低障礙 (跳)</span></div>
+                        <div class="guide-item"><span class="icon">👙</span><span class="desc">高障礙 (蹲)</span></div>
+                        <div class="guide-item"><span class="icon">⚡</span><span class="desc">高障礙 (蹲)</span></div>
+                        <div class="guide-item"><span class="icon">🚧</span><span class="desc">高障礙 (蹲)</span></div>
+                        <div class="guide-item"><span class="icon">🎍</span><span class="desc">路障 (閃)</span></div>
+                        <div class="guide-item"><span class="icon">🦽</span><span class="desc">路障 (閃)</span></div>
+                        <div class="guide-item"><span class="icon">⛔</span><span class="desc">路障 (閃)</span></div>
+                        <div class="guide-item"><span class="icon">👵🏻</span><span class="desc">貼紙 (+10)</span></div>
+                        <div class="guide-item"><span class="icon">⭐</span><span class="desc">無敵星星</span></div>
+                        <div class="guide-item"><span class="icon">💊</span><span class="desc">恢復體力</span></div>
+                        <div class="guide-item"><span class="icon">🛡️</span><span class="desc">假牙護盾</span></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -313,16 +323,26 @@
                 justify-content: center;
             }
 
-            .start-guide {
+            .start-sidebar {
                 flex: 0.8;
+                display: flex;
+                flex-direction: column;
+                gap: 15px;
+                max-width: 280px;
+                max-height: 90%;
+                overflow-y: auto;
+            }
+
+            .start-leaderboard {
+                max-height: 250px;
+            }
+
+            .start-guide {
                 background: rgba(255, 255, 255, 0.1);
                 padding: 15px;
                 border-radius: 15px;
-                max-width: 250px;
                 text-align: left;
                 border: 1px solid rgba(255, 255, 255, 0.2);
-                overflow-y: auto;
-                max-height: 80%;
             }
 
             .start-guide h3 {
@@ -458,14 +478,30 @@
                 .start-layout {
                     flex-direction: column;
                     justify-content: flex-start;
-                    padding-top: 60px;
+                    padding-top: 40px;
+                    overflow-y: auto;
+                }
+
+                .start-main {
+                    flex: none;
+                }
+
+                .start-main p {
+                    margin-bottom: 15px;
+                }
+
+                .start-sidebar {
+                    width: 100%;
+                    max-width: 100%;
+                    flex: none;
+                }
+
+                .start-leaderboard {
+                    max-height: 200px;
                 }
 
                 .start-guide {
-                    width: 100%;
-                    max-width: 100%;
-                    margin-top: 20px;
-                    flex: none;
+                    display: none;
                 }
 
                 .guide-grid {
@@ -1283,8 +1319,9 @@
                 });
         }
 
-        function renderLeaderboard(scores, currentScore) {
-            const container = document.getElementById('leaderboard-content');
+        function renderLeaderboard(scores, containerId, currentScore) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
 
             if (scores.length === 0) {
                 container.innerHTML = '<div class="leaderboard-loading">無法載入排行榜</div>';
@@ -1293,7 +1330,7 @@
 
             let html = '<ul class="leaderboard-list">';
             scores.forEach((entry, index) => {
-                const isCurrentPlayer = entry.name === state.playerName && entry.score === currentScore;
+                const isCurrentPlayer = currentScore !== undefined && entry.name === state.playerName && entry.score === currentScore;
                 const rankEmoji = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}`;
                 html += `
                     <li class="leaderboard-item ${isCurrentPlayer ? 'current-player' : ''}">
@@ -1305,6 +1342,13 @@
             });
             html += '</ul>';
             container.innerHTML = html;
+        }
+
+        function loadStartLeaderboard() {
+            document.getElementById('start-leaderboard-content').innerHTML = '<div class="leaderboard-loading">載入中...</div>';
+            fetchLeaderboard(scores => {
+                renderLeaderboard(scores, 'start-leaderboard-content');
+            });
         }
 
         function escapeHtml(text) {
@@ -1335,14 +1379,14 @@
                 .then(() => {
                     // Fetch and display leaderboard
                     fetchLeaderboard(scores => {
-                        renderLeaderboard(scores, finalScore);
+                        renderLeaderboard(scores, 'leaderboard-content', finalScore);
                     });
                 })
                 .catch(err => {
                     console.error('Failed to submit score:', err);
                     // Still try to fetch leaderboard
                     fetchLeaderboard(scores => {
-                        renderLeaderboard(scores, finalScore);
+                        renderLeaderboard(scores, 'leaderboard-content', finalScore);
                     });
                 });
         }
@@ -1361,9 +1405,13 @@
         document.getElementById('home-btn').addEventListener('click', () => {
             document.getElementById('game-over-screen').classList.add('hidden');
             document.getElementById('start-screen').classList.remove('hidden');
+            loadStartLeaderboard(); // Refresh leaderboard when returning home
         });
 
         initInput();
+
+        // Load leaderboard on page load
+        loadStartLeaderboard();
 
     </script>
 </body>

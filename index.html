@@ -475,6 +475,175 @@
                 padding: 20px;
             }
 
+            /* Clickable leaderboard hint */
+            .start-leaderboard {
+                cursor: pointer;
+                transition: transform 0.2s, box-shadow 0.2s;
+            }
+
+            .start-leaderboard:hover {
+                transform: scale(1.02);
+                box-shadow: 0 4px 20px rgba(255, 255, 255, 0.2);
+            }
+
+            .start-leaderboard::after {
+                content: '點擊查看完整排行榜';
+                display: block;
+                text-align: center;
+                font-size: 0.85rem;
+                color: rgba(255, 255, 255, 0.5);
+                margin-top: 10px;
+                padding-top: 10px;
+                border-top: 1px solid rgba(255, 255, 255, 0.1);
+            }
+
+            /* Full Page Leaderboard */
+            .fullpage-lb {
+                background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 20px;
+                z-index: 1000;
+            }
+
+            .fullpage-lb-container {
+                background: rgba(255, 255, 255, 0.08);
+                border-radius: 20px;
+                padding: 25px;
+                width: 100%;
+                max-width: 500px;
+                max-height: 90vh;
+                display: flex;
+                flex-direction: column;
+                border: 1px solid rgba(255, 255, 255, 0.15);
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            }
+
+            .fullpage-lb-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 20px;
+                padding-bottom: 15px;
+                border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            }
+
+            .fullpage-lb-header h2 {
+                margin: 0;
+                font-size: 1.8rem;
+                color: var(--accent);
+            }
+
+            .fullpage-lb-close {
+                background: rgba(255, 255, 255, 0.1);
+                border: none;
+                color: white;
+                font-size: 2rem;
+                width: 45px;
+                height: 45px;
+                border-radius: 50%;
+                cursor: pointer;
+                transition: background 0.2s, transform 0.2s;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                line-height: 1;
+            }
+
+            .fullpage-lb-close:hover {
+                background: rgba(255, 100, 100, 0.3);
+                transform: scale(1.1);
+            }
+
+            .fullpage-lb-content {
+                flex: 1;
+                overflow-y: auto;
+                min-height: 300px;
+            }
+
+            .fullpage-lb-content .leaderboard-list {
+                list-style: none;
+                padding: 0;
+                margin: 0;
+            }
+
+            .fullpage-lb-content .leaderboard-item {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 14px 12px;
+                margin-bottom: 8px;
+                background: rgba(255, 255, 255, 0.05);
+                border-radius: 12px;
+                font-size: 1.2rem;
+                transition: background 0.2s;
+                border: none;
+            }
+
+            .fullpage-lb-content .leaderboard-item:hover {
+                background: rgba(255, 255, 255, 0.1);
+            }
+
+            .fullpage-lb-content .leaderboard-item.current-player {
+                background: rgba(255, 215, 0, 0.15);
+                border: 1px solid rgba(255, 215, 0, 0.3);
+            }
+
+            .fullpage-lb-content .leaderboard-rank {
+                width: 45px;
+                font-size: 1.4rem;
+                text-align: center;
+            }
+
+            .fullpage-lb-content .leaderboard-name {
+                flex: 1;
+                font-size: 1.15rem;
+                margin: 0 15px;
+            }
+
+            .fullpage-lb-content .leaderboard-score {
+                font-size: 1.2rem;
+                font-weight: 700;
+                color: var(--accent);
+                min-width: 80px;
+            }
+
+            .fullpage-lb-pagination {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-top: 20px;
+                padding-top: 15px;
+                border-top: 1px solid rgba(255, 255, 255, 0.1);
+            }
+
+            .pagination-btn {
+                background: rgba(255, 255, 255, 0.1);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                color: white;
+                padding: 12px 20px;
+                border-radius: 10px;
+                cursor: pointer;
+                font-size: 1rem;
+                transition: background 0.2s, transform 0.2s;
+            }
+
+            .pagination-btn:hover:not(:disabled) {
+                background: rgba(255, 255, 255, 0.2);
+                transform: translateY(-2px);
+            }
+
+            .pagination-btn:disabled {
+                opacity: 0.3;
+                cursor: not-allowed;
+            }
+
+            .pagination-info {
+                font-size: 1.1rem;
+                color: rgba(255, 255, 255, 0.7);
+            }
+
             /* Mobile adjustment */
             @media (max-width: 600px) {
                 .start-layout {
@@ -509,6 +678,30 @@
                 .guide-grid {
                     grid-template-columns: 1fr 1fr;
                 }
+
+                .fullpage-lb-container {
+                    padding: 20px 15px;
+                    max-height: 95vh;
+                }
+
+                .fullpage-lb-header h2 {
+                    font-size: 1.5rem;
+                }
+
+                .fullpage-lb-content .leaderboard-item {
+                    padding: 12px 10px;
+                    font-size: 1.1rem;
+                }
+
+                .fullpage-lb-content .leaderboard-rank {
+                    width: 38px;
+                    font-size: 1.2rem;
+                }
+
+                .pagination-btn {
+                    padding: 10px 14px;
+                    font-size: 0.9rem;
+                }
             }
         </style>
 
@@ -533,6 +726,24 @@
 
             <button class="btn" id="restart-btn">再次逃跑</button>
             <button class="btn btn-secondary" id="home-btn">返回首頁</button>
+        </div>
+
+        <!-- Full Page Leaderboard Overlay -->
+        <div id="fullpage-leaderboard" class="screen hidden fullpage-lb">
+            <div class="fullpage-lb-container">
+                <div class="fullpage-lb-header">
+                    <h2>🏆 排行榜 Top 30</h2>
+                    <button class="fullpage-lb-close" id="fullpage-lb-close">&times;</button>
+                </div>
+                <div class="fullpage-lb-content" id="fullpage-lb-content">
+                    <div class="leaderboard-loading">載入中...</div>
+                </div>
+                <div class="fullpage-lb-pagination">
+                    <button class="pagination-btn" id="lb-prev-btn">&larr; 上一頁</button>
+                    <span class="pagination-info" id="lb-page-info">1 / 3</span>
+                    <button class="pagination-btn" id="lb-next-btn">下一頁 &rarr;</button>
+                </div>
+            </div>
         </div>
 
         <!-- HUD -->
@@ -1358,6 +1569,91 @@
             div.textContent = text;
             return div.innerHTML;
         }
+
+        // Full Page Leaderboard System
+        const fullpageLB = {
+            scores: [],
+            currentPage: 0,
+            itemsPerPage: 10,
+
+            get totalPages() {
+                return Math.ceil(this.scores.length / this.itemsPerPage);
+            },
+
+            open() {
+                document.getElementById('fullpage-leaderboard').classList.remove('hidden');
+                document.getElementById('fullpage-lb-content').innerHTML = '<div class="leaderboard-loading">載入中...</div>';
+
+                fetchLeaderboard(scores => {
+                    this.scores = scores;
+                    this.currentPage = 0;
+                    this.render();
+                });
+            },
+
+            close() {
+                document.getElementById('fullpage-leaderboard').classList.add('hidden');
+            },
+
+            render() {
+                const container = document.getElementById('fullpage-lb-content');
+                const pageInfo = document.getElementById('lb-page-info');
+                const prevBtn = document.getElementById('lb-prev-btn');
+                const nextBtn = document.getElementById('lb-next-btn');
+
+                if (this.scores.length === 0) {
+                    container.innerHTML = '<div class="leaderboard-loading">無法載入排行榜</div>';
+                    pageInfo.textContent = '0 / 0';
+                    prevBtn.disabled = true;
+                    nextBtn.disabled = true;
+                    return;
+                }
+
+                const start = this.currentPage * this.itemsPerPage;
+                const end = Math.min(start + this.itemsPerPage, this.scores.length);
+                const pageScores = this.scores.slice(start, end);
+
+                let html = '<ul class="leaderboard-list">';
+                pageScores.forEach((entry, index) => {
+                    const globalIndex = start + index;
+                    const rankEmoji = globalIndex === 0 ? '🥇' : globalIndex === 1 ? '🥈' : globalIndex === 2 ? '🥉' : `${globalIndex + 1}`;
+                    html += `
+                        <li class="leaderboard-item">
+                            <span class="leaderboard-rank">${rankEmoji}</span>
+                            <span class="leaderboard-name">${escapeHtml(entry.name)}</span>
+                            <span class="leaderboard-score">${entry.score}</span>
+                        </li>
+                    `;
+                });
+                html += '</ul>';
+                container.innerHTML = html;
+
+                // Update pagination
+                pageInfo.textContent = `${this.currentPage + 1} / ${this.totalPages}`;
+                prevBtn.disabled = this.currentPage === 0;
+                nextBtn.disabled = this.currentPage >= this.totalPages - 1;
+            },
+
+            prevPage() {
+                if (this.currentPage > 0) {
+                    this.currentPage--;
+                    this.render();
+                }
+            },
+
+            nextPage() {
+                if (this.currentPage < this.totalPages - 1) {
+                    this.currentPage++;
+                    this.render();
+                }
+            }
+        };
+
+        // Full Page Leaderboard Event Listeners
+        document.querySelector('.start-leaderboard').addEventListener('click', () => fullpageLB.open());
+        document.getElementById('fullpage-lb-close').addEventListener('click', () => fullpageLB.close());
+        document.getElementById('lb-prev-btn').addEventListener('click', () => fullpageLB.prevPage());
+        document.getElementById('lb-next-btn').addEventListener('click', () => fullpageLB.nextPage());
 
         function gameOver() {
             state.running = false;

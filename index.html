@@ -275,24 +275,7 @@
                 </div>
                 <button class="btn" id="start-btn">快跑！</button>
                 <div class="disclaimer">請不要鼓勵家中長輩嘗試。</div>
-                <div class="start-guide">
-                    <h3>圖鑑說明</h3>
-                    <div class="guide-grid">
-                        <div class="guide-item"><span class="icon">🧹</span><span class="desc">低障礙 (跳)</span></div>
-                        <div class="guide-item"><span class="icon">💧</span><span class="desc">低障礙 (跳)</span></div>
-                        <div class="guide-item"><span class="icon">🚕</span><span class="desc">低障礙 (跳)</span></div>
-                        <div class="guide-item"><span class="icon">👙</span><span class="desc">高障礙 (蹲)</span></div>
-                        <div class="guide-item"><span class="icon">⚡</span><span class="desc">高障礙 (蹲)</span></div>
-                        <div class="guide-item"><span class="icon">🚧</span><span class="desc">高障礙 (蹲)</span></div>
-                        <div class="guide-item"><span class="icon">🎍</span><span class="desc">路障 (閃)</span></div>
-                        <div class="guide-item"><span class="icon">🦽</span><span class="desc">路障 (閃)</span></div>
-                        <div class="guide-item"><span class="icon">⛔</span><span class="desc">路障 (閃)</span></div>
-                        <div class="guide-item"><span class="icon">👵🏻</span><span class="desc">貼紙 (+10)</span></div>
-                        <div class="guide-item"><span class="icon">⭐</span><span class="desc">無敵星星</span></div>
-                        <div class="guide-item"><span class="icon">💊</span><span class="desc">恢復體力</span></div>
-                        <div class="guide-item"><span class="icon">🛡️</span><span class="desc">假牙護盾</span></div>
-                    </div>
-                </div>
+                <button class="btn btn-secondary" id="guide-btn">圖鑑說明</button>
             </div>
 
             <div class="start-sidebar">
@@ -337,39 +320,100 @@
                 max-height: 400px;
             }
 
-            .start-guide {
-                background: rgba(255, 255, 255, 0.1);
-                padding: 15px;
-                border-radius: 15px;
-                text-align: left;
-                border: 1px solid rgba(255, 255, 255, 0.2);
+            /* Guide Modal */
+            .guide-modal-overlay {
+                background: rgba(0, 0, 0, 0.85);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 20px;
+                z-index: 1000;
             }
 
-            .start-guide h3 {
-                margin: 0 0 10px;
+            .guide-modal-container {
+                background: rgba(30, 30, 40, 0.95);
+                border-radius: 20px;
+                padding: 25px;
+                width: 100%;
+                max-width: 420px;
+                max-height: 85vh;
+                display: flex;
+                flex-direction: column;
+                border: 1px solid rgba(255, 255, 255, 0.15);
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            }
+
+            .guide-modal-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 15px;
+                padding-bottom: 12px;
+                border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            }
+
+            .guide-modal-header h2 {
+                margin: 0;
+                font-size: 1.6rem;
                 color: var(--accent);
-                text-align: center;
-                font-size: 1.2rem;
+            }
+
+            .guide-modal-close {
+                background: rgba(255, 255, 255, 0.1);
+                border: none;
+                color: white;
+                font-size: 2rem;
+                width: 45px;
+                height: 45px;
+                border-radius: 50%;
+                cursor: pointer;
+                transition: background 0.2s, transform 0.2s;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                line-height: 1;
+            }
+
+            .guide-modal-close:hover {
+                background: rgba(255, 100, 100, 0.3);
+                transform: scale(1.1);
+            }
+
+            .guide-modal-content {
+                flex: 1;
+                overflow: hidden;
             }
 
             .guide-grid {
                 display: grid;
                 grid-template-columns: 1fr;
-                gap: 8px;
+                gap: 10px;
             }
 
             .guide-item {
                 display: flex;
                 align-items: center;
-                font-size: 0.9rem;
+                font-size: 1rem;
                 color: #ddd;
+                background: rgba(255, 255, 255, 0.05);
+                padding: 10px 12px;
+                border-radius: 10px;
             }
 
             .guide-item .icon {
-                font-size: 1.5rem;
-                margin-right: 10px;
-                width: 30px;
+                font-size: 1.8rem;
+                margin-right: 12px;
+                width: 36px;
                 text-align: center;
+            }
+
+            .guide-modal-pagination {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-top: 15px;
+                padding-top: 12px;
+                border-top: 1px solid rgba(255, 255, 255, 0.1);
             }
 
             /* Name input */
@@ -681,12 +725,9 @@
                     max-height: 320px;
                 }
 
-                .start-guide {
-                    display: none;
-                }
-
-                .guide-grid {
-                    grid-template-columns: 1fr 1fr;
+                .guide-modal-container {
+                    padding: 20px 15px;
+                    max-height: 90vh;
                 }
 
                 .fullpage-lb-container {
@@ -752,6 +793,23 @@
                     <button class="pagination-btn" id="lb-prev-btn">&larr; 上一頁</button>
                     <span class="pagination-info" id="lb-page-info">1 / 3</span>
                     <button class="pagination-btn" id="lb-next-btn">下一頁 &rarr;</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Guide Modal Overlay -->
+        <div id="guide-modal" class="screen hidden guide-modal-overlay">
+            <div class="guide-modal-container">
+                <div class="guide-modal-header">
+                    <h2>圖鑑說明</h2>
+                    <button class="guide-modal-close" id="guide-modal-close">&times;</button>
+                </div>
+                <div class="guide-modal-content" id="guide-modal-content">
+                </div>
+                <div class="guide-modal-pagination" id="guide-pagination" style="display:none;">
+                    <button class="pagination-btn" id="guide-prev-btn">&larr; 上一頁</button>
+                    <span class="pagination-info" id="guide-page-info">1 / 1</span>
+                    <button class="pagination-btn" id="guide-next-btn">下一頁 &rarr;</button>
                 </div>
             </div>
         </div>
@@ -1664,6 +1722,109 @@
         document.getElementById('fullpage-lb-close').addEventListener('click', () => fullpageLB.close());
         document.getElementById('lb-prev-btn').addEventListener('click', () => fullpageLB.prevPage());
         document.getElementById('lb-next-btn').addEventListener('click', () => fullpageLB.nextPage());
+
+        // --- Guide Modal System ---
+        const guideModal = {
+            items: [
+                { icon: '🧹', desc: '低障礙 (跳)' },
+                { icon: '💧', desc: '低障礙 (跳)' },
+                { icon: '🚕', desc: '低障礙 (跳)' },
+                { icon: '👙', desc: '高障礙 (蹲)' },
+                { icon: '⚡', desc: '高障礙 (蹲)' },
+                { icon: '🚧', desc: '高障礙 (蹲)' },
+                { icon: '🎍', desc: '路障 (閃)' },
+                { icon: '🦽', desc: '路障 (閃)' },
+                { icon: '⛔', desc: '路障 (閃)' },
+                { icon: '👵🏻', desc: '貼紙 (+10)' },
+                { icon: '⭐', desc: '無敵星星' },
+                { icon: '💊', desc: '恢復體力' },
+                { icon: '🛡️', desc: '假牙護盾' },
+            ],
+            currentPage: 0,
+            itemsPerPage: 0,
+
+            open() {
+                document.getElementById('guide-modal').classList.remove('hidden');
+                this.currentPage = 0;
+                // First render all items to measure overflow
+                this.renderAll();
+                // After render, check if pagination is needed
+                requestAnimationFrame(() => this.checkOverflow());
+            },
+
+            close() {
+                document.getElementById('guide-modal').classList.add('hidden');
+            },
+
+            renderAll() {
+                const container = document.getElementById('guide-modal-content');
+                let html = '<div class="guide-grid">';
+                this.items.forEach(item => {
+                    html += `<div class="guide-item"><span class="icon">${item.icon}</span><span class="desc">${item.desc}</span></div>`;
+                });
+                html += '</div>';
+                container.innerHTML = html;
+                document.getElementById('guide-pagination').style.display = 'none';
+            },
+
+            checkOverflow() {
+                const container = document.getElementById('guide-modal-content');
+                if (container.scrollHeight > container.clientHeight + 5) {
+                    // Content overflows - enable pagination
+                    // Calculate how many items fit by measuring one item
+                    const items = container.querySelectorAll('.guide-item');
+                    if (items.length === 0) return;
+                    const itemHeight = items[0].offsetHeight + 10; // height + gap
+                    const availableHeight = container.clientHeight;
+                    this.itemsPerPage = Math.max(1, Math.floor(availableHeight / itemHeight));
+                    this.currentPage = 0;
+                    this.renderPage();
+                }
+            },
+
+            renderPage() {
+                const container = document.getElementById('guide-modal-content');
+                const totalPages = Math.ceil(this.items.length / this.itemsPerPage);
+                const start = this.currentPage * this.itemsPerPage;
+                const end = Math.min(start + this.itemsPerPage, this.items.length);
+                const pageItems = this.items.slice(start, end);
+
+                let html = '<div class="guide-grid">';
+                pageItems.forEach(item => {
+                    html += `<div class="guide-item"><span class="icon">${item.icon}</span><span class="desc">${item.desc}</span></div>`;
+                });
+                html += '</div>';
+                container.innerHTML = html;
+
+                // Show pagination controls
+                const paginationEl = document.getElementById('guide-pagination');
+                paginationEl.style.display = 'flex';
+                document.getElementById('guide-page-info').textContent = `${this.currentPage + 1} / ${totalPages}`;
+                document.getElementById('guide-prev-btn').disabled = this.currentPage === 0;
+                document.getElementById('guide-next-btn').disabled = this.currentPage >= totalPages - 1;
+            },
+
+            prevPage() {
+                if (this.currentPage > 0) {
+                    this.currentPage--;
+                    this.renderPage();
+                }
+            },
+
+            nextPage() {
+                const totalPages = Math.ceil(this.items.length / this.itemsPerPage);
+                if (this.currentPage < totalPages - 1) {
+                    this.currentPage++;
+                    this.renderPage();
+                }
+            }
+        };
+
+        // Guide Modal Event Listeners
+        document.getElementById('guide-btn').addEventListener('click', () => guideModal.open());
+        document.getElementById('guide-modal-close').addEventListener('click', () => guideModal.close());
+        document.getElementById('guide-prev-btn').addEventListener('click', () => guideModal.prevPage());
+        document.getElementById('guide-next-btn').addEventListener('click', () => guideModal.nextPage());
 
         function gameOver() {
             state.running = false;

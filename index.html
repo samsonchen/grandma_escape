@@ -267,7 +267,7 @@
         <div id="start-screen" class="screen start-layout">
             <div class="start-main">
                 <h1>阿嬤逃脫 2D</h1>
-                <h3>版本測試 2026-02-05</h3>
+                <h3>版本測試 2026-02-06</h3>
                 <p>逃離養老院！<br>左右切換跑道<br>上滑跳躍 (躲低)<br>下滑蹲低 (躲高)</p>
                 <div class="name-input-container">
                     <input type="text" id="player-name" class="name-input" placeholder="輸入你的名字" maxlength="12">
@@ -314,6 +314,13 @@
                 gap: 20px;
                 align-items: center;
                 justify-content: center;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            #start-screen,
+            #start-screen * {
+                touch-action: pan-y;
             }
 
             .start-main {
@@ -870,9 +877,24 @@
             </div>
         </div>
 
+        <!-- Pause Screen -->
+        <div id="pause-screen" class="screen hidden">
+            <div class="pause-container">
+                <div class="pause-icon">⏸</div>
+                <h2 class="pause-title">遊戲暫停</h2>
+                <div class="pause-stats">
+                    <span>分數: <strong id="pause-score">0</strong></span>
+                    <span>距離: <strong id="pause-dist">0</strong>m</span>
+                </div>
+                <button class="btn" id="resume-btn">繼續遊戲</button>
+                <button class="btn btn-secondary" id="pause-home-btn">返回首頁</button>
+            </div>
+        </div>
+
         <!-- HUD -->
         <div id="hud" style="display: none;">
             <div class="score-pill">🏆 <span id="score-val">0</span></div>
+            <button class="pause-btn" id="pause-btn">⏸</button>
             <div class="score-pill">💨 <span id="speed-val">0</span>km/h</div>
         </div>
 
@@ -989,6 +1011,7 @@
                 input.startY = e.touches[0].clientY;
             });
             el.addEventListener('touchend', e => {
+                if (!state.running || state.paused) return;
                 const dx = e.changedTouches[0].clientX - input.startX;
                 const dy = e.changedTouches[0].clientY - input.startY;
 
@@ -1004,7 +1027,19 @@
 
             // Keyboard
             window.addEventListener('keydown', e => {
-                if (!state.running) return;
+                ///if (!state.running) return;
+                // Pause toggle (works anytime game is running)
+                if (e.key === 'Escape' || e.key === 'p' || e.key === 'P') {
+                    if (state.running && !state.paused) {
+                        pauseGame();
+                        return;
+                    } else if (state.paused) {
+                        resumeGame();
+                        return;
+                    }
+                }
+
+                if (!state.running || state.paused) return;
                 switch (e.key) {
                     case 'ArrowLeft': case 'a': move(-1); break;
                     case 'ArrowRight': case 'd': move(1); break;
@@ -1882,6 +1917,54 @@
         document.getElementById('guide-prev-btn').addEventListener('click', () => guideModal.prevPage());
         document.getElementById('guide-next-btn').addEventListener('click', () => guideModal.nextPage());
 
+        // --- Pause System ---
+        function pauseGame() {
+            if (!state.running || state.paused) return;
+            state.paused = true;
+
+            // Update pause screen stats
+            document.getElementById('pause-score').innerText = Math.floor(state.score);
+            document.getElementById('pause-dist').innerText = Math.floor(state.distance);
+            
+            document.getElementById('pause-screen').classList.remove('hidden');
+            document.getElementById('hud').style.display = 'none';
+            document.getElementById('hp-box').style.display = 'none';
+        }
+
+        function resumeGame() {
+            if (!state.paused) return;
+            state.paused = false;
+
+            document.getElementById('pause-screen').classList.add('hidden');
+            document.getElementById('hud').style.display = 'flex';
+            document.getElementById('hp-box').style.display = 'block';
+
+            // Reset lastTime to prevent huge dt spike after unpause
+            state.lastTime = performance.now();
+        }
+
+        function goHomeFromPause() {
+            state.paused = false;
+            state.running = false;
+
+            // Cancel game loop
+            if (gameLoopId) {
+                cancelAnimationFrame(gameLoopId);
+                gameLoopId = null;
+            }
+            
+            document.getElementById('pause-screen').classList.add('hidden');
+            document.getElementById('hud').style.display = 'none';
+            document.getElementById('hp-box').style.display = 'none';
+            document.getElementById('start-screen').classList.remove('hidden');
+            loadStartLeaderboard();
+        }
+
+        // Pause Event Listeners
+        document.getElementById('pause-btn').addEventListener('click', pauseGame);
+        document.getElementById('resume-btn').addEventListener('click', resumeGame);
+        document.getElementById('pause-home-btn').addEventListener('click', goHomeFromPause);
+        
         function gameOver() {
             state.running = false;
             document.getElementById('hud').style.display = 'none';
@@ -1943,6 +2026,7 @@
 
 
 </html>
+
 
 
 

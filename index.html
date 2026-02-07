@@ -145,6 +145,12 @@
             font-size: 1.1rem;
         }
 
+        .btn-guide {
+            background: var(--secondary);
+            border-color: var(--secondary);
+            box-shadow: 0 10px 30px rgba(88, 86, 214, 0.4);
+        }
+
         /* HUD */
         #hud {
             position: absolute;
@@ -275,7 +281,7 @@
                 </div>
                 <button class="btn" id="start-btn">快跑！</button>
                 <div class="disclaimer">請不要鼓勵家中長輩嘗試。</div>
-                <button class="btn btn-secondary" id="guide-btn">圖鑑說明</button>
+                <button class="btn btn-secondary btn-guide" id="guide-btn">圖鑑說明</button>
             </div>
 
             <div class="start-sidebar">
@@ -388,7 +394,13 @@
 
             .guide-modal-content {
                 flex: 1;
-                overflow: hidden;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            #guide-modal,
+            #guide-modal * {
+                touch-action: pan-y;
             }
 
             .guide-grid {
@@ -1837,11 +1849,7 @@
 
             open() {
                 document.getElementById('guide-modal').classList.remove('hidden');
-                this.currentPage = 0;
-                // First render all items to measure overflow
                 this.renderAll();
-                // After render, check if pagination is needed
-                requestAnimationFrame(() => this.checkOverflow());
             },
 
             close() {

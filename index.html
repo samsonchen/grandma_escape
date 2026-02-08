@@ -280,7 +280,7 @@
                     <div id="name-error" class="name-error">請先輸入名字！</div>
                 </div>
                 <button class="btn" id="start-btn">快跑！</button>
-                <button class="btn btn-secondary" id="guide-btn">圖鑑說明</button>
+                <button class="btn btn-secondary btn-guide" id="guide-btn">圖鑑說明</button>
                 <div class="disclaimer">請不要鼓勵家中長輩嘗試。</div>
                 <!--<div class="start-guide">
                     <h3>圖鑑說明</h3>
@@ -420,7 +420,13 @@
 
             .guide-modal-content {
                 flex: 1;
-                overflow: hidden;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .guide-modal-content,
+            .guide-modal-content * {
+                touch-action: pan-y;
             }
 
             /*.start-guide h3 {
@@ -1900,11 +1906,11 @@
 
             open() {
                 document.getElementById('guide-modal').classList.remove('hidden');
-                this.currentPage = 0;
+                //this.currentPage = 0;
                 // First render all items to measure overflow
                 this.renderAll();
                 // After render, check if pagination is needed
-                requestAnimationFrame(() => this.checkOverflow());
+                //requestAnimationFrame(() => this.checkOverflow());
             },
 
             close() {
@@ -2090,6 +2096,7 @@
 
 
 </html>
+
 
 
 

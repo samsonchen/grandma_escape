@@ -267,7 +267,7 @@
         <div id="start-screen" class="screen start-layout">
             <div class="start-main">
                 <h1>阿嬤逃脫 2D</h1>
-                <h3>版本測試 2026-02-06</h3>
+                <h3>版本測試 2026-02-08</h3>
                 <p>逃離養老院！<br>左右切換跑道<br>上滑跳躍 (躲低)<br>下滑蹲低 (躲高)</p>
                 <div class="name-input-container">
                     <input type="text" id="player-name" class="name-input" placeholder="輸入你的名字" maxlength="12">
@@ -471,6 +471,64 @@
                 border-top: 1px solid rgba(255, 255, 255, 0.1);
             }
 
+            /* Pause Button in HUD */
+            .pause-btn {
+                background: rgba(0, 0, 0, 0.6);
+                backdrop-filter: blur(10px);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                color: white;
+                font-size: 1.4rem;
+                width: 44px;
+                height: 44px;
+                border-radius: 50%;
+                cursor: pointer;
+                pointer-events: auto;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: background 0.2s, transform 0.1s;
+            }
+
+            .pause-btn:active {
+                transform: scale(0.9);
+                background: rgba(255, 255, 255, 0.2);
+            }
+
+            /* Pause Screen */
+            #pause-screen {
+                z-index: 30;
+            }
+
+            .pause-container {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 15px;
+            }
+
+            .pause-icon {
+                font-size: 4rem;
+                opacity: 0.8;
+            }
+
+            .pause-title {
+                font-size: 2rem;
+                color: white;
+                margin: 0;
+            }
+
+            .pause-stats {
+                display: flex;
+                gap: 25px;
+                font-size: 1.1rem;
+                color: rgba(255, 255, 255, 0.7);
+                margin-bottom: 10px;
+            }
+
+            .pause-stats strong {
+                color: var(--accent);
+            }
+            
             /* Name input */
             .name-input-container {
                 margin-bottom: 20px;
@@ -2026,6 +2084,7 @@
 
 
 </html>
+
 
 
 

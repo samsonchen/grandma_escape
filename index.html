@@ -206,26 +206,26 @@
             white-space: nowrap;
         }
 
-        .hp-container {
+        .hp-hearts {
             position: absolute;
-            top: 70px;
-            left: 20px;
-            right: 20px;
-            height: 6px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 3px;
-            overflow: hidden;
-        }
-
-        .hp-bar {
-            height: 100%;
+            top: calc(env(safe-area-inset-top, 20px) + 55px);
+            left: 0;
             width: 100%;
-            background: var(--success);
-            transition: width 0.2s, background 0.3s;
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            z-index: 10;
+            pointer-events: none;
         }
 
-        .hp-low {
-            background: var(--primary);
+        .heart {
+            font-size: 1.6rem;
+            transition: transform 0.2s, opacity 0.2s;
+        }
+
+        .heart.lost {
+            transform: scale(0.7);
+            opacity: 0.4;
         }
 
         .disclaimer {
@@ -968,8 +968,8 @@
             <div class="score-pill">💨 <span id="speed-val">0</span>km/h</div>
         </div>
 
-        <div id="hp-box" class="hp-container" style="display: none;">
-            <div id="hp-bar" class="hp-bar"></div>
+        <div id="hp-box" class="hp-hearts" style="display: none;">
+            <span class="heart">💚</span><span class="heart">💚</span><span class="heart">💚</span><span class="heart">💚</span><span class="heart">💚</span>
         </div>
 
         <div id="combo-display">COMBO x2</div>
@@ -1032,7 +1032,7 @@
             // Stats
             score: 0,
             distance: 0,
-            hp: 100,
+            hp: 5,
             speed: CONFIG.baseSpeed,
             combo: 0,
             tricks: 0,
@@ -1190,7 +1190,7 @@
             state.running = true;
             state.score = 0;
             state.distance = 0;
-            state.hp = 100;
+            state.hp = 5;
             state.lane = 1;
             state.objects = [];
             state.particles = [];
@@ -1223,8 +1223,8 @@
             document.getElementById('start-screen').classList.add('hidden');
             document.getElementById('game-over-screen').classList.add('hidden');
             document.getElementById('hud').style.display = 'flex';
-            document.getElementById('hp-box').style.display = 'block';
-            updateHP(100);
+            document.getElementById('hp-box').style.display = 'flex';
+            updateHP(5);
 
             loop(performance.now());
         }
@@ -1428,8 +1428,7 @@
             });
             state.objects = state.objects.filter(o => !o.garbage);
 
-            // 5. HP Regen/Decay or Chaser Logic
-            if (state.hp < 100 && state.hp > 0) state.hp += dt * 0.5; // Slow recover
+            // 5. HP / Chaser Logic
 
             // 6. UI Strings
             document.getElementById('score-val').innerText = Math.floor(state.score);
@@ -1460,7 +1459,7 @@
                     showCombo();
                 } else if (obj.type === 'powerup') {
                     if (obj.buff === 'star') { state.invincible = 5; showToast("無敵時間!"); }
-                    if (obj.buff === 'health') { state.hp = Math.min(100, state.hp + 30); updateHP(state.hp); showToast("體力恢復"); }
+                    if (obj.buff === 'health') { state.hp = Math.min(5, state.hp + 1); updateHP(state.hp); showToast("體力恢復"); }
                     if (obj.buff === 'shield') { state.shield = true; showToast("護盾開啟"); }
                 }
             } else {
@@ -1492,7 +1491,7 @@
                             return;
                         }
 
-                        state.hp -= 35;
+                        state.hp -= 1;
                         updateHP(state.hp);
                         state.speed *= 0.5;
                         state.combo = 0;
@@ -1611,7 +1610,7 @@
             }
 
             // Grandma Emoji
-            const grandmaEmoji = (state.hp < 30) ? '👵🏿' : '👵🏻'; // Darker face if low hp? Or just regular.
+            const grandmaEmoji = (state.hp <= 1) ? '👵🏿' : '👵🏻';
             // Shirt color circle
             ctx.fillStyle = '#ff4081';
             ctx.beginPath();
@@ -1681,10 +1680,19 @@
         }
 
         function updateHP(val) {
-            const bar = document.getElementById('hp-bar');
-            bar.style.width = val + '%';
-            if (val < 30) bar.classList.add('hp-low');
-            else bar.classList.remove('hp-low');
+            const hearts = document.querySelectorAll('#hp-box .heart');
+            const maxHearts = 5;
+            const hp = Math.max(0, Math.min(maxHearts, val));
+            // 從左邊往右邊扣：index < (max - hp) 的愛心為空
+            for (let i = 0; i < maxHearts; i++) {
+                if (i < maxHearts - hp) {
+                    hearts[i].textContent = '🖤';
+                    hearts[i].classList.add('lost');
+                } else {
+                    hearts[i].textContent = '💚';
+                    hearts[i].classList.remove('lost');
+                }
+            }
         }
 
         function showCombo() {
@@ -2003,7 +2011,7 @@
 
             document.getElementById('pause-screen').classList.add('hidden');
             document.getElementById('hud').style.display = 'flex';
-            document.getElementById('hp-box').style.display = 'block';
+            document.getElementById('hp-box').style.display = 'flex';
 
             // Reset lastTime to prevent huge dt spike after unpause
             state.lastTime = performance.now();

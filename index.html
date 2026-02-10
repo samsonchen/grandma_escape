@@ -180,10 +180,11 @@
 
         #combo-display {
             position: absolute;
-            top: 20%;
+            /*top: 20%;*/
+            top: calc(env(safe-area-inset-top, 20px) + 95px);
             left: 50%;
             transform: translateX(-50%) scale(0);
-            font-size: 3rem;
+            font-size: 1.5rem;
             font-weight: 900;
             color: var(--accent);
             text-shadow: 0 4px 20px rgba(255, 204, 0, 0.5);
@@ -295,7 +296,7 @@
         <div id="start-screen" class="screen start-layout">
             <div class="start-main">
                 <h1>阿嬤逃脫 2D</h1>
-                <h3>版本測試 2026-02-09</h3>
+                <h3>版本測試 2026-02-10</h3>
                 <p>逃離養老院！<br>左右切換跑道<br>上滑跳躍 (躲低)<br>下滑蹲低 (躲高)</p>
                 <div class="name-input-container">
                     <input type="text" id="player-name" class="name-input" placeholder="輸入你的名字" maxlength="12">
@@ -1342,7 +1343,8 @@
             state.distance += distDelta;
 
             // Stage logic
-            state.stage = Math.floor(state.distance / 200) % 3;
+            //state.stage = Math.floor(state.distance / 200) % 3;
+            state.stage = 0;
 
             // 2. Player Physics (Visual Z)
             if (state.isJumping) {
@@ -1518,9 +1520,11 @@
             state.playerY = state.screenHeight * 0.8;
 
             // 1. Background
-            const bgColors = ['#2c3e50', '#27ae60', '#34495e']; // Hallway, Garden, Street
+            /*const bgColors = ['#2c3e50', '#27ae60', '#34495e']; // Hallway, Garden, Street
             ctx.fillStyle = bgColors[state.stage];
-            ctx.fillRect(0, 0, state.screenWidth, state.screenHeight);
+            ctx.fillRect(0, 0, state.screenWidth, state.screenHeight);*/
+            // 1. Background - fixed gray
+            ctx.fillStyle = '#2c3e50';
 
             // Lanes
             ctx.lineWidth = 2;
@@ -2104,6 +2108,7 @@
 
 
 </html>
+
 
 
 

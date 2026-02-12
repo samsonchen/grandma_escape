@@ -180,7 +180,10 @@
 
         #combo-display {
             position: absolute;
+<<<<<<< HEAD
             /*top: 20%;*/
+=======
+>>>>>>> origin/claude/fix-combo-display-2zUcK
             top: calc(env(safe-area-inset-top, 20px) + 95px);
             left: 50%;
             transform: translateX(-50%) scale(0);
@@ -1342,8 +1345,12 @@
             const distDelta = (state.speed * dt) / 20; // Meters
             state.distance += distDelta;
 
+<<<<<<< HEAD
             // Stage logic
             //state.stage = Math.floor(state.distance / 200) % 3;
+=======
+            // Stage logic - fixed to stage 0 (no scene changes)
+>>>>>>> origin/claude/fix-combo-display-2zUcK
             state.stage = 0;
 
             // 2. Player Physics (Visual Z)
@@ -1519,12 +1526,17 @@
             state.laneWidth = state.screenWidth / 3;
             state.playerY = state.screenHeight * 0.8;
 
+<<<<<<< HEAD
             // 1. Background
             /*const bgColors = ['#2c3e50', '#27ae60', '#34495e']; // Hallway, Garden, Street
             ctx.fillStyle = bgColors[state.stage];
             ctx.fillRect(0, 0, state.screenWidth, state.screenHeight);*/
             // 1. Background - fixed gray
             ctx.fillStyle = '#2c3e50';
+=======
+            // 1. Background - fixed gray
+            ctx.fillStyle = '#808080';
+>>>>>>> origin/claude/fix-combo-display-2zUcK
             ctx.fillRect(0, 0, state.screenWidth, state.screenHeight);
 
             // Lanes

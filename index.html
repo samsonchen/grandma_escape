@@ -209,14 +209,20 @@
 
         /*.hp-container {
             position: absolute;
-            top: calc(env(safe-area-inset-top, 20px) + 55px);
-            left: 0;
+            top: 70px;
+            left: 20px;
+            right: 20px;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .hp-bar {
+            height: 100%;
             width: 100%;
-            display: flex;
-            justify-content: center;
-            gap: 6px;
-            z-index: 10;
-            pointer-events: none;
+            background: var(--success);
+            transition: width 0.2s, background 0.3s;
         }
 
         .hp-low {
@@ -1450,10 +1456,7 @@
                     showCombo();
                 } else if (obj.type === 'powerup') {
                     if (obj.buff === 'star') { state.invincible = 5; showToast("無敵時間!"); }
-<<<<<<< HEAD
                     //if (obj.buff === 'health') { state.hp = Math.min(100, state.hp + 30); updateHP(state.hp); showToast("體力恢復"); }
-=======
->>>>>>> 39c6bae4b975f137df8a548f28c29d237a4cda02
                     if (obj.buff === 'health') { state.hp = Math.min(5, state.hp + 1); updateHP(state.hp); showToast("體力恢復"); }
                     if (obj.buff === 'shield') { state.shield = true; showToast("護盾開啟"); }
                 }
@@ -1522,6 +1525,7 @@
             ctx.fillRect(0, 0, state.screenWidth, state.screenHeight);*/
             // 1. Background - fixed gray
             ctx.fillStyle = '#2c3e50';
+            ctx.fillRect(0, 0, state.screenWidth, state.screenHeight);
 
             // Lanes
             ctx.lineWidth = 2;
@@ -1607,7 +1611,7 @@
             }
 
             // Grandma Emoji
-            const grandmaEmoji = (state.hp <= 1) ? '👵🏿' : '👵🏻';
+            const grandmaEmoji = (state.hp <= 1) ? '👵🏿' : '👵🏻'; // Darker face if low hp? Or just regular.
             // Shirt color circle
             ctx.fillStyle = '#ff4081';
             ctx.beginPath();
@@ -2105,6 +2109,7 @@
 
 
 </html>
+
 
 
 

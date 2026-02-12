@@ -956,7 +956,7 @@
         <div id="hud" style="display: none;">
             <div class="score-pill">🏆 <span id="score-val">0</span></div>
             <button class="pause-btn" id="pause-btn">⏸</button>
-            <div class="score-pill">💨 <span id="speed-val">0</span>km/h</div>
+            <div class="score-pill" id="speed-pill" style="cursor:pointer;pointer-events:auto;">💨 <span id="speed-val">0</span><span id="speed-unit">km/h</span></div>
         </div>
 
         <!---<div id="hp-box" class="hp-container" style="display: none;">
@@ -1025,6 +1025,7 @@
             slideTimer: 0,
 
             // Stats
+            speedUnit: 'km/h',
             score: 0,
             distance: 0,
             hp: 5,
@@ -1069,6 +1070,17 @@
 
         function initInput() {
             const el = document.getElementById('game-container');
+
+            // Speed unit toggle
+            const speedPill = document.getElementById('speed-pill');
+            speedPill.addEventListener('click', e => {
+                e.stopPropagation();
+                state.speedUnit = state.speedUnit === 'km/h' ? 'mi/h' : 'km/h';
+                document.getElementById('speed-unit').innerText = state.speedUnit;
+            });
+            speedPill.addEventListener('touchstart', e => {
+                e.stopPropagation();
+            });
 
             // Touch
             el.addEventListener('touchstart', e => {
@@ -1429,7 +1441,9 @@
 
             // 6. UI Strings
             document.getElementById('score-val').innerText = Math.floor(state.score);
-            document.getElementById('speed-val').innerText = Math.floor(state.speed / 10);
+            const speedKmh = state.speed / 10;
+            const displaySpeed = state.speedUnit === 'mi/h' ? speedKmh * 0.621371 : speedKmh;
+            document.getElementById('speed-val').innerText = Math.floor(displaySpeed);
 
             if (state.hp <= 0) gameOver();
         }

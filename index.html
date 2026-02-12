@@ -209,20 +209,14 @@
 
         /*.hp-container {
             position: absolute;
-            top: 70px;
-            left: 20px;
-            right: 20px;
-            height: 6px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 3px;
-            overflow: hidden;
-        }
-
-        .hp-bar {
-            height: 100%;
+            top: calc(env(safe-area-inset-top, 20px) + 55px);
+            left: 0;
             width: 100%;
-            background: var(--success);
-            transition: width 0.2s, background 0.3s;
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            z-index: 10;
+            pointer-events: none;
         }
 
         .hp-low {
@@ -1456,7 +1450,10 @@
                     showCombo();
                 } else if (obj.type === 'powerup') {
                     if (obj.buff === 'star') { state.invincible = 5; showToast("無敵時間!"); }
+<<<<<<< HEAD
                     //if (obj.buff === 'health') { state.hp = Math.min(100, state.hp + 30); updateHP(state.hp); showToast("體力恢復"); }
+=======
+>>>>>>> 39c6bae4b975f137df8a548f28c29d237a4cda02
                     if (obj.buff === 'health') { state.hp = Math.min(5, state.hp + 1); updateHP(state.hp); showToast("體力恢復"); }
                     if (obj.buff === 'shield') { state.shield = true; showToast("護盾開啟"); }
                 }
@@ -1611,7 +1608,7 @@
             }
 
             // Grandma Emoji
-            const grandmaEmoji = (state.hp <= 1) ? '👵🏿' : '👵🏻'; // Darker face if low hp? Or just regular.
+            const grandmaEmoji = (state.hp <= 1) ? '👵🏿' : '👵🏻';
             // Shirt color circle
             ctx.fillStyle = '#ff4081';
             ctx.beginPath();
